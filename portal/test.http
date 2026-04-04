@@ -1,0 +1,249 @@
+### =========================
+
+### LOGIN ADMIN (RUN FIRST)
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=admin&password=admin
+
+### After running above request, copy token and paste below
+
+@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1MzI4NjM3LCJleHAiOjE3NzUzMzIyMzd9.jEEq3hQtBjeT111BEBcRkE-qS_QYjIBSYDWg9NDp7mE
+
+### =========================
+
+### STUDENTS (ADMIN ONLY)
+
+### =========================
+
+POST http://localhost:8080/students
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "Student One",
+"email": "student1",
+"branch": "CSE"
+}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{adminToken}}
+
+###
+
+PUT http://localhost:8080/students/1
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "Student One Updated",
+"email": "student1",
+"branch": "AI"
+}
+
+###
+
+DELETE http://localhost:8080/students/10
+Authorization: {{adminToken}}
+
+### =========================
+
+### COMPANIES (ADMIN)
+
+### =========================
+
+POST http://localhost:8080/companies
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "company1",
+"role": "SDE",
+"packageOffered": 30
+}
+
+###
+
+GET http://localhost:8080/companies
+Authorization: {{adminToken}}
+
+### =========================
+
+### JOBS (ADMIN / COMPANY)
+
+### =========================
+
+POST http://localhost:8080/jobs
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"title": "Software Engineer",
+"description": "Backend Developer Role",
+"company": {
+"id": 5
+}
+}
+
+###
+
+GET http://localhost:8080/jobs
+Authorization: {{adminToken}}
+
+### =========================
+
+### APPLICATIONS (ADMIN)
+
+### =========================
+
+POST http://localhost:8080/applications
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"student": {
+"id": 1
+},
+"job": {
+"id": 6
+}
+}
+
+###
+
+GET http://localhost:8080/applications
+Authorization: {{adminToken}}
+
+### =========================
+
+### STUDENT LOGIN
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=student1&password=admin
+
+### Copy token and paste below
+
+@studentToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50MSIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNzc1MTIyNTI5LCJleHAiOjE3NzUxMjYxMjl9.wxHazgm9tRU463EouWcMjmWZeLah8L3ZUHow7e5sWhI
+### STUDENT TEST
+
+### =========================
+
+GET http://localhost:8080/students/me
+Authorization: {{studentToken}}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{studentToken}}
+
+### =========================
+
+### COMPANY LOGIN
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=company1&password=admin
+
+### Copy token and paste below
+
+@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzUzMzIzMTIsImV4cCI6MTc3NTMzNTkxMn0.FJ5pRMDFPXn6dWlhvPJEHSKb_d69rs1TWVdqeSWyejI
+
+### =========================
+
+GET http://localhost:8080/jobs
+Authorization: {{companyToken}}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{companyToken}}
+
+### =========================
+
+### DATA ISOLATION TEST
+
+### COMPANY SEES ONLY ITS APPLICATIONS
+
+### =========================
+
+GET http://localhost:8080/applications/company
+Authorization: {{companyToken}}
+
+### Copy `applicationId` from /applications/company response and paste below
+@applicationId = 9
+
+### COMPANY SHORRTLISTS TOP 5 STUDENTS BASED ON FIT SCORE
+GET http://localhost:8080/applications/company/shortlist
+Authorization: {{companyToken}}
+
+
+### JOB SPECIFIC SHORTLIST
+GET http://localhost:8080/applications/company/shortlist/6?limit=3&minScore=50
+Authorization: {{companyToken}}
+
+### SHORTLIST AN APPLICATION
+PUT http://localhost:8080/applications/{{applicationId}}/status?status=SHORTLISTED
+Authorization: {{companyToken}}
+
+### REJECT AN APPLICATION
+PUT http://localhost:8080/applications/{{applicationId}}/status?status=REJECTED
+Authorization: {{companyToken}}
+
+
+
+### =========================
+### PLACEMENT LOGIN
+### =========================
+
+POST http://localhost:8080/auth/login?username=placement1&password=admin
+
+### Copy token and paste below
+
+@placementToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwbGFjZW1lbnQxIiwicm9sZSI6IlBMQUNFTUVOVCIsImlhdCI6MTc3NDg5ODM0NSwiZXhwIjoxNzc0OTAxOTQ1fQ._N5o7qWF73LQ9lcRaM-tN3SwGeugwrLUXQGK1nGdopY
+### =========================
+
+### Placement sees ALL applications (controlled view)
+GET http://localhost:8080/applications/placement
+Authorization: {{placementToken}}
+
+### =========================
+### STUDENT APPLICATIONS
+### =========================
+
+GET http://localhost:8080/applications/me
+Authorization: {{studentToken}}
+
+### =========================
+### UPDATE STUDENT PROFILE
+### =========================
+
+PUT http://localhost:8080/students/me
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "cgpa": 8.7,
+  "skills": "Java, Spring Boot, AI",
+  "projects": "Placement Portal",
+  "resumeLink": "https://drive.google.com/sample",
+  "phone": "9999999999",
+  "university": "MIT-WPU",
+  "graduationYear": 2026
+}
+
+### =========================
+
+### TEST WITHOUT TOKEN (SHOULD FAIL)
+
+### =========================
+GET http://localhost:8080/students
+
+### =========================
+### FIT SCORE (STUDENT)
+### =========================
+
+GET http://localhost:8080/students/fit-score
+Authorization: {{studentToken}}
