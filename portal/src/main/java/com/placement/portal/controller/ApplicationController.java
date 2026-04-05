@@ -7,8 +7,9 @@ import com.placement.portal.entity.Application;
 import com.placement.portal.entity.ApplicationStatus;
 import com.placement.portal.entity.Student;
 import com.placement.portal.repository.ApplicationRepository;
+import com.placement.portal.service.AuditService;
 import com.placement.portal.service.FitScoreService;
-
+import com.placement.portal.entity.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,8 @@ public class ApplicationController {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+    @Autowired
+    private AuditService auditService;
 
     // APPLY TO JOB
     @PostMapping
@@ -89,6 +92,26 @@ public class ApplicationController {
 
                         // calculate fit score
                         FitScoreResponse fit = fitScoreService.calculateFitScore(student, app.getJob());
+                        app.setHash(fit.getHash()); // store hash in application for later verification
+                        applicationRepository.save(app); // save updated application with hash
+
+                        boolean valid = fitScoreService.verifyHash(
+                                student,
+                                app.getJob(),
+                                fit.getScore(),
+                                app.getHash()
+                        );
+
+                        if (!valid) {
+                                app.setStatus(ApplicationStatus.REJECTED);
+                                applicationRepository.save(app);
+
+                                auditService.log(
+                                        "TAMPER_DETECTED",
+                                        "SYSTEM",
+                                        "Application ID: " + app.getId() + " was auto-rejected"
+                                );
+                        }
 
                         response.add(new ApplicationResponseDTO(
                                 app.getId(),
@@ -96,7 +119,9 @@ public class ApplicationController {
                                 app.getJob().getTitle(),
                                 fit.getScore(),
                                 fit.getLevel(),
-                                app.getStatus().toString()
+                                app.getStatus().toString(),
+                                fit.getHash(),
+                                valid ? "VALID DATA" : "TAMPERED DATA"
                         ));
                 }
 
@@ -130,7 +155,14 @@ public class ApplicationController {
                                 app.getJob().getTitle(),
                                 fit.getScore(),
                                 fit.getLevel(),
-                                app.getStatus().toString()
+                                app.getStatus().toString(),
+                                fit.getHash(),
+                                fitScoreService.verifyHash(
+                                        student,
+                                        app.getJob(),
+                                        fit.getScore(),
+                                        app.getHash()
+                                ) ? "VALID DATA" : "TAMPERED DATA"
                         ));
                 }
 
@@ -159,7 +191,7 @@ public class ApplicationController {
 
                 for (Application app : applications) {
 
-                        // 🔐 ensure company only sees its own job
+                        // ensure company only sees its own job
                         if (!app.getJob().getCompany().getName().equals(companyName)) {
                         continue;
                         }
@@ -170,14 +202,22 @@ public class ApplicationController {
 
                         // apply minScore filter
                         if (fit.getScore() >= minScore) {
-                        response.add(new ApplicationResponseDTO(
-                                app.getId(),
-                                student.getName(),
-                                app.getJob().getTitle(),
-                                fit.getScore(),
-                                fit.getLevel(),
-                                app.getStatus().toString()
-                        ));
+                                response.add(new ApplicationResponseDTO(
+                                        app.getId(),
+                                        student.getName(),
+                                        app.getJob().getTitle(),
+                                        fit.getScore(),
+                                        fit.getLevel(),
+                                        app.getStatus().toString(),
+                                        fit.getHash(),
+                                        fitScoreService.verifyHash(
+                                                student,
+                                                app.getJob(),
+                                                fit.getScore(),
+                                                app.getHash()
+                                        ) ? "VALID DATA" : "TAMPERED DATA"
+
+                                ));
                         }
                 }
 
@@ -210,6 +250,38 @@ public class ApplicationController {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status value");
                 }
 
-                return applicationRepository.save(app);
+                Application savedApp = applicationRepository.save(app);
+
+                // ADD THIS BLOCK
+                auditService.log(
+                        "APPLICATION_STATUS_UPDATED",
+                        companyName,
+                        "Application ID: " + id + " changed to " + status
+                );
+
+                return savedApp;
+        }
+
+        @GetMapping("/{id}/verify")
+        public String verifyApplication(@PathVariable Long id) {
+
+                Application app = applicationRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Application not found"));
+
+                Student student = app.getStudent();
+                Job job = app.getJob();
+
+                // recalculate score
+                int score = fitScoreService.calculateFitScore(student, job).getScore();
+
+                // compare with STORED hash
+                boolean valid = fitScoreService.verifyHash(
+                        student,
+                        job,
+                        score,
+                        app.getHash()
+                );
+
+                return valid ? "VALID DATA" : "TAMPERED DATA";
         }
 }

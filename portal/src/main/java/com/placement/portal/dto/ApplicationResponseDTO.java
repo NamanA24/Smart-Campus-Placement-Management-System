@@ -7,14 +7,18 @@ public class ApplicationResponseDTO {
     private int fitScore;
     private String level;
     private String status;
+    private String hash;
+    private String verification;
 
-    public ApplicationResponseDTO(Long applicationId, String studentName, String jobTitle, int fitScore, String level, String status) {
+    public ApplicationResponseDTO(Long applicationId, String studentName, String jobTitle, int fitScore, String level, String status, String hash, String verification) {
         this.applicationId = applicationId;
         this.studentName = studentName;
         this.jobTitle = jobTitle;
         this.fitScore = fitScore;
         this.level = level;
         this.status = status;
+        this.hash = hash;
+        this.verification = verification;
     }
 
     public Long getApplicationId() {
@@ -39,5 +43,13 @@ public class ApplicationResponseDTO {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public String getVerification() {
+        return verification;
     }
 }

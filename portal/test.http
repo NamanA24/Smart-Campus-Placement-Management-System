@@ -8,8 +8,7 @@ POST http://localhost:8080/auth/login?username=admin&password=admin
 
 ### After running above request, copy token and paste below
 
-@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1MzI4NjM3LCJleHAiOjE3NzUzMzIyMzd9.jEEq3hQtBjeT111BEBcRkE-qS_QYjIBSYDWg9NDp7mE
-
+@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NDE4NzcxLCJleHAiOjE3NzU0MjIzNzF9.mY9XFMuPvfPdM1OWZa5VBHfvmtQEnj_9bbWaSGYLf5Y
 ### =========================
 
 ### STUDENTS (ADMIN ONLY)
@@ -149,7 +148,7 @@ POST http://localhost:8080/auth/login?username=company1&password=admin
 
 ### Copy token and paste below
 
-@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzUzMzIzMTIsImV4cCI6MTc3NTMzNTkxMn0.FJ5pRMDFPXn6dWlhvPJEHSKb_d69rs1TWVdqeSWyejI
+@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzU0MTg3MDIsImV4cCI6MTc3NTQyMjMwMn0.INS9RMU_ff44yOmYHm2LTXi3I9dnKOraWuoqi5y1Jms
 
 ### =========================
 
@@ -240,6 +239,18 @@ Content-Type: application/json
 
 ### =========================
 GET http://localhost:8080/students
+
+
+### =========================
+### AUDIT LOGS (ADMIN ONLY)
+### =========================
+
+GET http://localhost:8080/audit
+Authorization: {{adminToken}}
+
+### VERIFY APPLICATION (TPU STYLE)
+GET http://localhost:8080/applications/10/verify
+Authorization: {{companyToken}}
 
 ### =========================
 ### FIT SCORE (STUDENT)
