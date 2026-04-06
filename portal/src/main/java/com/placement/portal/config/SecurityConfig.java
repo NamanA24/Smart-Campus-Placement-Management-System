@@ -25,6 +25,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/error").permitAll()
 
                 // Student self (PUT + GET FIRST)
                 .requestMatchers(HttpMethod.GET, "/students/me")
@@ -52,7 +53,16 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_STUDENT")
 
                 // Admin only (KEEP AFTER /students/me)
-                .requestMatchers("/students/**")
+                .requestMatchers(HttpMethod.POST, "/students")
+                    .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers(HttpMethod.GET, "/students")
+                    .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers(HttpMethod.PUT, "/students/**")
+                    .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers(HttpMethod.DELETE, "/students/**")
                     .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/applications/company/shortlist/**")

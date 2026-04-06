@@ -11,17 +11,18 @@ import java.util.List;
 public class FitScoreService {
 
     private final AuditService auditService;
+    private final TPUService tpuService;
 
-    public FitScoreService(AuditService auditService) {
+    public FitScoreService(AuditService auditService, TPUService tpuService) {
         this.auditService = auditService;
+        this.tpuService = tpuService;
     }
 
     public FitScoreResponse calculateFitScore(Student student, Job job) {
 
-        // ✅ Fallback case
+        // Fallback case
         if (student == null || job == null) {
-            String fallbackHash = generateHash("default");
-            return new FitScoreResponse(50, "Basic", List.of(), fallbackHash);
+            return new FitScoreResponse(50, "Basic", List.of(), "NO_SIGNATURE");
         }
 
         int score = 0;
@@ -69,43 +70,33 @@ public class FitScoreService {
         else if (score >= 60) level = "Good";
         else level = "Needs Improvement";
 
-        // 🔐 TPU: Generate hash
-        String data = student.getEmail() + "|" + job.getTitle() + "|" + score;
-        String hash = generateHash(data);
+        // SIGN DATA USING TPU
+        String data = student.getEmail() + job.getTitle() + score;
 
-        // 🧾 TPA: Audit log
+        String signature = tpuService.signData(
+                data,
+                student.getPrivateKey()
+        );
+
+        // AUDIT LOG
         auditService.log(
                 "FIT_SCORE_CALCULATED",
                 student.getEmail(),
                 "Score: " + score + " for job: " + job.getTitle()
         );
 
-        return new FitScoreResponse(score, level, List.of(), hash);
+        return new FitScoreResponse(score, level, List.of(), signature);
     }
 
-    // Hash generator (SHA-256)
-    private String generateHash(String data) {
-        try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = md.digest(data.getBytes());
-            StringBuilder hex = new StringBuilder();
+    // VERIFY SIGNATURE (NEW)
+    public boolean verifySignature(Student student, Job job, int score, String signature) {
 
-            for (byte b : hashBytes) {
-                hex.append(String.format("%02x", b));
-            }
+        String data = student.getEmail() + job.getTitle() + score;
 
-            return hex.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Hash generation failed");
-        }
-    }
-
-    public boolean verifyHash(Student student, Job job, int score, String hash) {
-
-        String recalculated = generateHash(
-                student.getEmail() + "|" + job.getTitle() + "|" + score
+        return tpuService.verifyData(
+                data,
+                signature,
+                student.getPublicKey()
         );
-
-        return recalculated.equals(hash);
     }
 }

@@ -4,6 +4,7 @@ import com.placement.portal.dto.FitScoreResponse;
 import com.placement.portal.entity.Student;
 import com.placement.portal.repository.StudentRepository;
 import com.placement.portal.service.FitScoreService;
+import com.placement.portal.service.TPUService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,13 +21,16 @@ public class StudentController {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private TPUService tpuService;
+
+    @Autowired
+    private FitScoreService fitScoreService;
+
     // POST API (Create student)
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
-
-        if (!studentRepository.findAllByEmail(student.getEmail()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
-        }
+        ensureKeys(student);
 
         return studentRepository.save(student);
     }
@@ -34,7 +38,14 @@ public class StudentController {
     // GET API (Fetch all students)
     @GetMapping
     public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+        List<Student> students = studentRepository.findAll();
+        for (Student student : students) {
+            if (student.getPublicKey() == null || student.getPrivateKey() == null) {
+                ensureKeys(student);
+                studentRepository.save(student);
+            }
+        }
+        return students;
     }
 
     @DeleteMapping("/{id}")
@@ -122,8 +133,22 @@ public class StudentController {
         return students.get(0);
     }
 
-    @Autowired
-    private FitScoreService fitScoreService;
+    private void ensureKeys(Student student) {
+
+        if (student.getPublicKey() != null && student.getPrivateKey() != null) {
+            return;
+        }
+
+        var keyPair = tpuService.generateKeys();
+
+        String publicKey = tpuService.encodePublicKey(keyPair.getPublic());
+        String privateKey = tpuService.encodePrivateKey(keyPair.getPrivate());
+
+        student.setPublicKey(publicKey);
+        student.setPrivateKey(privateKey);
+    }
+
+    
 
     @GetMapping("/fit-score")
     public FitScoreResponse getFitScore() {
@@ -132,7 +157,7 @@ public class StudentController {
                 .getAuthentication()
                 .getName();
 
-        Student student = studentRepository.findByEmail(email);
+        Student student = resolveSingleStudentByEmail(email);
 
         return fitScoreService.calculateFitScore(student, null);
     }

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/applications")
@@ -92,14 +93,14 @@ public class ApplicationController {
 
                         // calculate fit score
                         FitScoreResponse fit = fitScoreService.calculateFitScore(student, app.getJob());
-                        app.setHash(fit.getHash()); // store hash in application for later verification
-                        applicationRepository.save(app); // save updated application with hash
+                        app.setSignature(fit.getSignature()); // store signature in application for later verification
+                        applicationRepository.save(app); // save updated application with signature
 
-                        boolean valid = fitScoreService.verifyHash(
+                        boolean valid = fitScoreService.verifySignature(
                                 student,
                                 app.getJob(),
                                 fit.getScore(),
-                                app.getHash()
+                                app.getSignature()
                         );
 
                         if (!valid) {
@@ -120,7 +121,7 @@ public class ApplicationController {
                                 fit.getScore(),
                                 fit.getLevel(),
                                 app.getStatus().toString(),
-                                fit.getHash(),
+                                fit.getSignature(),
                                 valid ? "VALID DATA" : "TAMPERED DATA"
                         ));
                 }
@@ -156,12 +157,12 @@ public class ApplicationController {
                                 fit.getScore(),
                                 fit.getLevel(),
                                 app.getStatus().toString(),
-                                fit.getHash(),
-                                fitScoreService.verifyHash(
+                                fit.getSignature(),
+                                fitScoreService.verifySignature(
                                         student,
                                         app.getJob(),
                                         fit.getScore(),
-                                        app.getHash()
+                                        app.getSignature()
                                 ) ? "VALID DATA" : "TAMPERED DATA"
                         ));
                 }
@@ -209,12 +210,12 @@ public class ApplicationController {
                                         fit.getScore(),
                                         fit.getLevel(),
                                         app.getStatus().toString(),
-                                        fit.getHash(),
-                                        fitScoreService.verifyHash(
+                                        fit.getSignature(),
+                                        fitScoreService.verifySignature(
                                                 student,
                                                 app.getJob(),
                                                 fit.getScore(),
-                                                app.getHash()
+                                                app.getSignature()
                                         ) ? "VALID DATA" : "TAMPERED DATA"
 
                                 ));
@@ -275,13 +276,116 @@ public class ApplicationController {
                 int score = fitScoreService.calculateFitScore(student, job).getScore();
 
                 // compare with STORED hash
-                boolean valid = fitScoreService.verifyHash(
+                boolean valid = fitScoreService.verifySignature(
                         student,
                         job,
                         score,
-                        app.getHash()
+                        app.getSignature()
                 );
 
                 return valid ? "VALID DATA" : "TAMPERED DATA";
+        }
+
+        @GetMapping("/analytics/top")
+        public List<ApplicationResponseDTO> getTopCandidatesByJob(
+                @RequestParam Long jobId
+        ) {
+
+                List<Application> applications = applicationRepository.findByJobId(jobId);
+
+                List<ApplicationResponseDTO> response = new ArrayList<>();
+
+                for (Application app : applications) {
+
+                        Student student = app.getStudent();
+
+                        FitScoreResponse fit = fitScoreService.calculateFitScore(student, app.getJob());
+
+                        boolean valid = fitScoreService.verifySignature(
+                                student,
+                                app.getJob(),
+                                fit.getScore(),
+                                app.getSignature()
+                        );
+
+                        response.add(new ApplicationResponseDTO(
+                                app.getId(),
+                                student.getName(),
+                                app.getJob().getTitle(),
+                                fit.getScore(),
+                                fit.getLevel(),
+                                app.getStatus().toString(),
+                                fit.getSignature(),
+                                valid ? "VALID DATA" : "TAMPERED DATA"
+                        ));
+                }
+
+                // sort by score (descending)
+                response.sort((a, b) -> b.getFitScore() - a.getFitScore());
+
+                // return top 5
+                return response.stream().limit(5).toList();
+        }
+
+        @GetMapping("/analytics/average/{jobId}")
+        public double getAverageScore(@PathVariable Long jobId) {
+
+                List<Application> applications = applicationRepository.findByJobId(jobId);
+
+                if (applications.isEmpty()) return 0;
+
+                int total = 0;
+
+                for (Application app : applications) {
+                        var fit = fitScoreService.calculateFitScore(
+                                app.getStudent(),
+                                app.getJob()
+                        );
+                        total += fit.getScore();
+                }
+
+                return (double) total / applications.size();
+        }
+
+        @GetMapping("/analytics/selection-ratio/{jobId}")
+        public double getSelectionRatio(@PathVariable Long jobId) {
+
+                List<Application> applications = applicationRepository.findByJobId(jobId);
+
+                if (applications.isEmpty()) return 0;
+
+                int total = applications.size();
+                int shortlisted = 0;
+
+                for (Application app : applications) {
+                        if (app.getStatus() == ApplicationStatus.SHORTLISTED) {
+                        shortlisted++;
+                        }
+                }
+
+                return ((double) shortlisted / total) * 100;
+        }
+
+        @GetMapping("/analytics/status/{jobId}")
+        public Object getStatusDistribution(@PathVariable Long jobId) {
+
+                List<Application> applications = applicationRepository.findByJobId(jobId);
+
+                int applied = 0;
+                int shortlisted = 0;
+                int rejected = 0;
+
+                for (Application app : applications) {
+                        if (app.getStatus() == ApplicationStatus.APPLIED) applied++;
+                        else if (app.getStatus() == ApplicationStatus.SHORTLISTED) shortlisted++;
+                        else if (app.getStatus() == ApplicationStatus.REJECTED) rejected++;
+                }
+
+                return Map.of(
+                        "applied", applied,
+                        "shortlisted", shortlisted,
+                        "rejected", rejected,
+                        "total", applications.size()
+                );
         }
 }

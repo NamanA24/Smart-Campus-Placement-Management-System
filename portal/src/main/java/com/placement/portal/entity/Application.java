@@ -29,9 +29,11 @@ public class Application {
     public ApplicationStatus getStatus() { return status; }
     public void setStatus(ApplicationStatus status) { this.status = status; }
 
-    private String hash;
-    public String getHash() { return hash; }
-    public void setHash(String hash) { this.hash = hash; }  
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signature;
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }  
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.APPLIED;

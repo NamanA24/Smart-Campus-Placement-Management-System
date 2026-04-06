@@ -1,6 +1,7 @@
 package com.placement.portal.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Student {
@@ -22,6 +23,15 @@ public class Student {
     private String phone;
     private String university;
     private int graduationYear;
+
+    @JsonIgnore
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String privateKey;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String publicKey;
 
     // getters & setters
     public Long getId() { return id; }
@@ -55,4 +65,11 @@ public class Student {
 
     public int getGraduationYear() { return graduationYear; }
     public void setGraduationYear(int graduationYear) { this.graduationYear = graduationYear; }
+
+    public String getPublicKey() { return publicKey; }
+    public void setPublicKey(String publicKey) { this.publicKey = publicKey; }
+
+    public String getPrivateKey() { return privateKey; }
+    public void setPrivateKey(String privateKey) { this.privateKey = privateKey; }
+
 }

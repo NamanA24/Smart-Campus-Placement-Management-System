@@ -8,7 +8,7 @@ POST http://localhost:8080/auth/login?username=admin&password=admin
 
 ### After running above request, copy token and paste below
 
-@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NDE4NzcxLCJleHAiOjE3NzU0MjIzNzF9.mY9XFMuPvfPdM1OWZa5VBHfvmtQEnj_9bbWaSGYLf5Y
+@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NDkzMzk1LCJleHAiOjE3NzU0OTY5OTV9.jOetiiA1GNLBV9VIvD2_1suHArTrD8JjI5hPNTGrasI
 ### =========================
 
 ### STUDENTS (ADMIN ONLY)
@@ -20,7 +20,7 @@ Authorization: {{adminToken}}
 Content-Type: application/json
 
 {
-"name": "Student One",
+"name": "rsatest1",
 "email": "student1",
 "branch": "CSE"
 }
@@ -148,8 +148,7 @@ POST http://localhost:8080/auth/login?username=company1&password=admin
 
 ### Copy token and paste below
 
-@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzU0MTg3MDIsImV4cCI6MTc3NTQyMjMwMn0.INS9RMU_ff44yOmYHm2LTXi3I9dnKOraWuoqi5y1Jms
-
+@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzU0OTY4NzIsImV4cCI6MTc3NTUwMDQ3Mn0.thYiCKK0WBZuIrmxg8rTHQqqNHLlF8DN4RjCMDQza3o
 ### =========================
 
 GET http://localhost:8080/jobs
@@ -258,3 +257,22 @@ Authorization: {{companyToken}}
 
 GET http://localhost:8080/students/fit-score
 Authorization: {{studentToken}}
+
+### =========================
+### ANALYTICS - TOP CANDIDATES
+### =========================
+
+GET http://localhost:8080/applications/analytics/top?jobId=6
+Authorization: {{companyToken}}
+
+### AVERAGE SCORE
+GET http://localhost:8080/applications/analytics/average/6
+Authorization: {{companyToken}}
+
+### SELECTION RATIO
+GET http://localhost:8080/applications/analytics/selection-ratio/6
+Authorization: {{companyToken}}
+
+### STATUS DISTRIBUTION
+GET http://localhost:8080/applications/analytics/status/6
+Authorization: {{companyToken}}
