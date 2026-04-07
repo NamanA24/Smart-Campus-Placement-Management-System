@@ -1,0 +1,372 @@
+### =========================
+
+### LOGIN ADMIN (RUN FIRST)
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=admin&password=admin
+
+### After running above request, copy token and paste below
+
+@adminToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NTgwMTM2LCJleHAiOjE3NzU1ODM3MzZ9.BgM0uLEEPpUcphhXkI7upiN0PGa8f7NrmFw8AXU-FAXWxRSw09q41vsz3qjgDFyepjOgjQezbrAzr5F0T2NszJ9HoS9hH2rNHJqCl9GlUOdZB0BBdKm3BIAazrn13gLJnRROkt_bURUhY5Bw6Y_2XyMBw4BsMDkVIFvUsuHrODBz-FTPBX0vfqEpyyf7wyDOE12Xe-21Z-pSGnASGHatAVhQFm6umzt561D_rKCKx6C1dPXanKUkWdAaUnNDf2M5vdK5ciApSFxCgwW4u9d16HocrgAWOXxXwQCAKLkS_jGW1rEvfYVLaFJZHe93MOrkHCrF1MgBP450qjBEWE6GGg
+### STUDENTS (ADMIN ONLY)
+
+### =========================
+
+POST http://localhost:8080/students
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "Devika",
+"email": "devika@gmail.com",
+"branch": "PD"
+}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{adminToken}}
+
+###
+
+PUT http://localhost:8080/students/16
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "devika updated",
+"email": "devika@gmail.com",
+"branch": "AI"
+}
+
+###
+
+DELETE http://localhost:8080/students/1
+Authorization: {{adminToken}}
+
+### =========================
+
+### COMPANIES (ADMIN)
+
+### =========================
+
+POST http://localhost:8080/companies
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"name": "Atlassan",
+"role": "Data Analyst",
+"packageOffered": 25
+}
+
+###
+
+GET http://localhost:8080/companies
+Authorization: {{adminToken}}
+
+### =========================
+
+### JOBS (ADMIN / COMPANY)
+
+### =========================
+
+POST http://localhost:8080/jobs
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+"title": "Data Analyst",
+"description": "Data Engineer role at Atlassan",
+"company": {
+"id": 7
+}
+}
+
+###
+
+GET http://localhost:8080/jobs
+Authorization: {{adminToken}}
+
+### =========================
+
+### APPLICATIONS (STUDENT OWNED)
+
+### =========================
+
+POST http://localhost:8080/applications
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+"job": {
+"id": 14
+}
+}
+
+###
+
+GET http://localhost:8080/applications
+Authorization: {{adminToken}}
+
+### =========================
+
+### STUDENT LOGIN
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=devika@gmail.com&password=dev
+
+### Copy token and paste below
+
+@studentToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJkZXZpa2FAZ21haWwuY29tIiwicm9sZSI6IlJPTEVfU1RVREVOVCIsImlhdCI6MTc3NTU4MDIyNywiZXhwIjoxNzc1NTgzODI3fQ.LF5BZmF3VencYykyz5M6aX-XvKggmPm6Q3rlLhubXhXQdGlp7xGAr1IY656fbbmuGPC1_0Fyf3eY89FuZ2p1BS6hCHopA8hcAnYX_vnUmTqcTS_lm9aUqd3ABRJvZMuCB_v8n82L7cTGicOtK-uW19h9BXpuvxatMu_UJEPP3Kd5XCWl6O8Z4o-cHKQxT3OXs5V_22tTWSMvsOD2W-5fUbN1Q4v4FfK0sBLy7XBwfWYp24_KUdViBfoTuZfDwKLCTFZfzgW2bxm_zPJKBqbMFTbeyH7_Q28feiz8Yjr9ks8IzzjFB_TsY1Bh-RKZsCcqxIQs_4U4Y6Edc7tB7hg3vA
+### STUDENT TEST
+
+### =========================
+
+GET http://localhost:8080/students/me
+Authorization: {{studentToken}}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{studentToken}}
+
+### =========================
+
+### COMPANY LOGIN
+
+### =========================
+
+POST http://localhost:8080/auth/login?username=Atlassan&password=admin
+
+### Copy token and paste below
+
+@companyToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBdGxhc3NhbiIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzU1ODAyNjAsImV4cCI6MTc3NTU4Mzg2MH0.oxYMYncwEu9MtLtWbFARhbWQPqor_ZfSsfnWAzynjoCsiZUm8SJumf88hBvysNleYabx-KJcuQdoTQVFls4EU9Ka-lHy-WRFVIKyWkH6FxjSSqogGeaFj_53d_gZPOnaEVb3G722aiJ_SUbqIUfk54rjE_CEI2kvEEKgJC6Ppb8wsNRP4IXmlSHrp53eNn2SeQ5B4uuvExTFAEN4va9SoPJApI3Hn4fDXfveqWyxdmmA1V9xq3D70qxsB8YkDWf10wB8yn4fmiThI6zJTnyrunCbtvoUpmNpIK6ObrQuKgf-xn9TVkeMIUTzGAEXGSCPC6Uo56vU6Mfyzs_9FsPXqg
+### =========================
+
+GET http://localhost:8080/jobs
+Authorization: {{companyToken}}
+
+###
+
+GET http://localhost:8080/students
+Authorization: {{companyToken}}
+
+### =========================
+
+### DATA ISOLATION TEST
+
+### COMPANY SEES ONLY ITS APPLICATIONS
+
+### =========================
+
+GET http://localhost:8080/applications/company
+Authorization: {{companyToken}}
+
+### Copy `applicationId` from /applications/company response and paste below
+@applicationId = 9
+
+### COMPANY SHORRTLISTS TOP 5 STUDENTS BASED ON FIT SCORE
+GET http://localhost:8080/applications/company/shortlist
+Authorization: {{companyToken}}
+
+
+### JOB SPECIFIC SHORTLIST
+GET http://localhost:8080/applications/company/shortlist/6?limit=3&minScore=50
+Authorization: {{companyToken}}
+
+### SHORTLIST AN APPLICATION
+PUT http://localhost:8080/applications/{{applicationId}}/status?status=SHORTLISTED
+Authorization: {{companyToken}}
+
+### REJECT AN APPLICATION
+PUT http://localhost:8080/applications/{{applicationId}}/status?status=REJECTED
+Authorization: {{companyToken}}
+
+
+
+### =========================
+### PLACEMENT LOGIN
+### =========================
+
+POST http://localhost:8080/auth/login?username=placement1&password=admin
+
+### Copy token and paste below
+
+@placementToken = Bearer <PASTE_PLACEMENT_TOKEN>
+### =========================
+
+### Placement sees ALL applications (controlled view)
+GET http://localhost:8080/applications/placement
+Authorization: {{placementToken}}
+
+### =========================
+### STUDENT APPLICATIONS
+### =========================
+
+GET http://localhost:8080/applications/me
+Authorization: {{studentToken}}
+
+### =========================
+### UPDATE STUDENT PROFILE
+### =========================
+
+PUT http://localhost:8080/students/me
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "cgpa": 8.2,
+  "skills": "python",
+  "projects": "house price prediction",
+  "resumeLink": "https://drive.google.com/devika",
+  "phone": "9545454545",
+  "university": "MIT-WPU",
+  "graduationYear": 2027
+}
+
+### =========================
+
+### TEST WITHOUT TOKEN (SHOULD FAIL)
+
+### =========================
+GET http://localhost:8080/students
+
+
+### =========================
+### AUDIT LOGS (ADMIN ONLY)
+### =========================
+
+GET http://localhost:8080/audit
+Authorization: {{adminToken}}
+
+### VERIFY APPLICATION (TPU STYLE)
+GET http://localhost:8080/applications/10/verify
+Authorization: {{companyToken}}
+
+### =========================
+### FIT SCORE (STUDENT)
+### =========================
+
+GET http://localhost:8080/students/fit-score
+Authorization: {{studentToken}}
+
+### =========================
+### ANALYTICS - TOP CANDIDATES
+### =========================
+
+GET http://localhost:8080/applications/analytics/top?jobId=6
+Authorization: {{companyToken}}
+
+### AVERAGE SCORE
+GET http://localhost:8080/applications/analytics/average/6
+Authorization: {{companyToken}}
+
+### SELECTION RATIO
+GET http://localhost:8080/applications/analytics/selection-ratio/6
+Authorization: {{companyToken}}
+
+### STATUS DISTRIBUTION
+GET http://localhost:8080/applications/analytics/status/6
+Authorization: {{companyToken}}
+
+### =========================
+### CANONICAL TAMPER TEST FLOW
+### =========================
+
+### Set these once before running this block.
+@studentEmail = devika@gmail.com
+@studentId = 16
+@tamperJobId = 14
+
+### 1) Login as student (copy token to @studentToken at top)
+POST http://localhost:8080/auth/login?username={{studentEmail}}&password=dev
+
+### 2) Ensure a company token exists too (copy token to @companyToken at top)
+POST http://localhost:8080/auth/login?username=Atlassan&password=admin
+
+### 3) Create a fresh job for this tamper test (admin)
+POST http://localhost:8080/jobs
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Audit Test Job",
+  "description": "Used to verify tamper + re-sign flow",
+  "company": {
+    "id": 3
+  },
+  "requiredSkills": "Java, Spring Boot"
+}
+
+### Copy returned id here
+@tamperJobId = 12
+
+### 4) Check current profile integrity (expect CLEAN/UNSIGNED initially)
+GET http://localhost:8080/students/me
+Authorization: {{studentToken}}
+
+### 5) Admin tampers profile
+PUT http://localhost:8080/students/{{studentId}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Devika Tampered",
+  "email": "{{studentEmail}}",
+  "branch": "AI",
+  "cgpa": 6.8,
+  "skills": "tampered-data",
+  "projects": "tampered-project",
+  "resumeLink": "tampered-link",
+  "phone": "0000000000",
+  "university": "tampered-university",
+  "graduationYear": 2028
+}
+
+### 6) Student checks profile again (expect TAMPERED)
+GET http://localhost:8080/students/me
+Authorization: {{studentToken}}
+
+### 7) Student tries to apply (expect 409 conflict while tampered)
+POST http://localhost:8080/applications
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "job": {
+    "id": {{tamperJobId}}
+  }
+}
+
+### 8) Student re-signs profile
+POST http://localhost:8080/students/me/resign
+Authorization: {{studentToken}}
+
+### 9) Student checks profile again (expect CLEAN)
+GET http://localhost:8080/students/me
+Authorization: {{studentToken}}
+
+### 10) Student applies again (expect success)
+POST http://localhost:8080/applications
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "job": {
+    "id": {{tamperJobId}}
+  }
+}
+
+### Copy returned application id here
+@tamperApplicationId = 16
+
+### 11) Verify created application data
+GET http://localhost:8080/applications/{{tamperApplicationId}}/verify
+Authorization: {{companyToken}}
+
+### 12) Run TPA audit across all applications
+GET http://localhost:8080/tpa/audit
+Authorization: {{adminToken}}

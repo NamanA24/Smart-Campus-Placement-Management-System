@@ -1,278 +1,271 @@
-### =========================
+### =====================================================
+### PLACEMENT PORTAL BACKEND DEMO FLOW (PROFESSOR MODE)
+### =====================================================
+### Use this exact order live.
+### If app startup fails, first free port 8080:
+###   netstat -ano | findstr :8080
+###   taskkill /PID <PID_FROM_ABOVE> /F
+### Then run:
+###   cd j:\portal\portal
+###   .\mvnw.cmd spring-boot:run
+### =====================================================
 
-### LOGIN ADMIN (RUN FIRST)
+@baseUrl = http://localhost:8080
+@adminToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NTkxMjE1LCJleHAiOjE3NzU1OTQ4MTV9.GuvQ18QeApA5VGZyNQKBbkLEIjttIEhiqCABuVF2dBiJUwLEy8vDbJcoH_PhCPat9fUtIFdVmQfYQyVVGizk1ICBBu0MYHY1CbBjrffHXoQN3svz_9LoWrKDUmw-29LtMB4GNJVSgPxmjYUUQTfQci_xU_RbYam3jxJ0oq8C-8F4a61i3vvi91jV6vA6HerdVBPYiBn1vyga2T0WuB4lcN26d6krjYSxNz54aTLxqD1YAcAw7gnCsmZqlmNkmW84YPwA87h4Q0e__SBoW1NtTlmaa4wyH-RLjncVRaqSrPENcrZiMBSvbompeX2Cpf2cqtZuXISggIwU0H_wFaBi4g
+@studentToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJuYW1hbi5kZW1vLjIwMjZAZ21haWwuY29tIiwicm9sZSI6IlJPTEVfU1RVREVOVCIsImlhdCI6MTc3NTU5MTQwNSwiZXhwIjoxNzc1NTk1MDA1fQ.UsLevLOAPvSfrI1PDEsBgVn-3kDFCry2RzUvjXzH3b037SGqQ12iWcKPD3JyhCKZGgPUZgOwCY0T97F86-CgD0JwnlJsw9QI7FJLWwrRvfx1v1gMjPPp5fCzuG_CmFWErIxeAcG7xtIV2tiNrcUQwMSf11FUI6tgaZ-xgn6gR4CCKHnaNqoyE51PAmEgw6xSPJ7giBg8iB-nP67z-8Q0GAxnevKE1TK0-_8UK5cA2GEj-gtC9C-MZTIpITs7lSHvgY8_-sWaE7MWhN5qoFlE4MZH9qH-iuUaLUkryTFs_GOxjkGvg_z4G8goJA-e96c8cu1TctbFI_5F8GY_YvoW4g
+@companyToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBdGxhc3NhbkRlbW8yMDI2MDQwOEEiLCJyb2xlIjoiUk9MRV9DT01QQU5ZIiwiaWF0IjoxNzc1NTkxNTYyLCJleHAiOjE3NzU1OTUxNjJ9.K5gqurcYFPYtJfTifkmFkRg_DnkYAhWJqGcUTKf-kapeDVrT4bu9lio05ER9z2V1xo2D2pAty_7bbb9xUu-Fvf5kUQK1cDzRxxLGX2818FFuewItnRHGx1asBMJdR2A8ImpUJMxcBdPHiIC1j-BuOv_d06BiYUWYgoEdiIXUVBJ9Tyb9i_adtU7n8_hDpZh1TFSXtbBQiXwaQMqrJbintobnIZ_BnbI-wRExbl5MK1mPA-fZpg3_FplwKHnuWLKwJ9YNXTgpTCBnI-NpgMYZyyvb2d7AoglvgilI5_abSNH00ZhJO6G2vEAuuqrKjRBSU4mt31WUWx63pwdpgKN8PQ
+@placementToken = Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJwbGFjZW1lbnQxIiwicm9sZSI6IlJPTEVfUExBQ0VNRU5UIiwiaWF0IjoxNzc1NTkxNzQyLCJleHAiOjE3NzU1OTUzNDJ9.B4FXr2AJLuwNY2alr8OZBs5rFwwRQOO9XM3Kl_dyti8V1XSbOO3EpvJ-znajQQCE0hDBBuyrupwJZt4OzKEtAC4dkfvctEqNZi1TICFwaG9hMr7roiYVaYGVIASKJC7nfrzffnYj02LvfEffB4i7CliYSFLT_76oGEIPVwlznG70ZQmYrCCtGdzv9hUYocuVrUBkmzwFqkQUeValCaswFUEzZ9ksQbV_ZjDzQyGLNu9sy0AhPTJaDe2bJ7LEe0VEgl4BM3Nx8waI0TsxPM-0ysYw8HC-SL9E_Dr-U7Ngl9MwA_xApvXRoMXm9IZUQyWvS7fg4XAs5nwQy_e8YU7Eeg
+@studentEmail = naman.demo.2026@gmail.com
+@studentPassword = dev
+@companyName = AtlassanDemo20260408A
+@studentId = 23
+@companyId = 9
+@jobId = 15
+@applicationId = 17
 
-### =========================
+### =====================================================
+### STEP 1: LOGIN AS ADMIN (RUN FIRST)
+### =====================================================
+POST {{baseUrl}}/auth/login?username=admin&password=admin
 
-POST http://localhost:8080/auth/login?username=admin&password=admin
+### Copy response token and paste into @adminToken
 
-### After running above request, copy token and paste below
-
-@adminToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJST0xFX0FETUlOIiwiaWF0IjoxNzc1NDkzMzk1LCJleHAiOjE3NzU0OTY5OTV9.jOetiiA1GNLBV9VIvD2_1suHArTrD8JjI5hPNTGrasI
-### =========================
-
-### STUDENTS (ADMIN ONLY)
-
-### =========================
-
-POST http://localhost:8080/students
+### =====================================================
+### STEP 2: CREATE STUDENT (SIGNED PROFILE + HASHED PASSWORD)
+### =====================================================
+POST {{baseUrl}}/students
 Authorization: {{adminToken}}
 Content-Type: application/json
 
 {
-"name": "rsatest1",
-"email": "student1",
-"branch": "CSE"
-}
-
-###
-
-GET http://localhost:8080/students
-Authorization: {{adminToken}}
-
-###
-
-PUT http://localhost:8080/students/1
-Authorization: {{adminToken}}
-Content-Type: application/json
-
-{
-"name": "Student One Updated",
-"email": "student1",
-"branch": "AI"
-}
-
-###
-
-DELETE http://localhost:8080/students/10
-Authorization: {{adminToken}}
-
-### =========================
-
-### COMPANIES (ADMIN)
-
-### =========================
-
-POST http://localhost:8080/companies
-Authorization: {{adminToken}}
-Content-Type: application/json
-
-{
-"name": "company1",
-"role": "SDE",
-"packageOffered": 30
-}
-
-###
-
-GET http://localhost:8080/companies
-Authorization: {{adminToken}}
-
-### =========================
-
-### JOBS (ADMIN / COMPANY)
-
-### =========================
-
-POST http://localhost:8080/jobs
-Authorization: {{adminToken}}
-Content-Type: application/json
-
-{
-"title": "Software Engineer",
-"description": "Backend Developer Role",
-"company": {
-"id": 5
-}
-}
-
-###
-
-GET http://localhost:8080/jobs
-Authorization: {{adminToken}}
-
-### =========================
-
-### APPLICATIONS (ADMIN)
-
-### =========================
-
-POST http://localhost:8080/applications
-Authorization: {{adminToken}}
-Content-Type: application/json
-
-{
-"student": {
-"id": 1
-},
-"job": {
-"id": 6
-}
-}
-
-###
-
-GET http://localhost:8080/applications
-Authorization: {{adminToken}}
-
-### =========================
-
-### STUDENT LOGIN
-
-### =========================
-
-POST http://localhost:8080/auth/login?username=student1&password=admin
-
-### Copy token and paste below
-
-@studentToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50MSIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNzc1MTIyNTI5LCJleHAiOjE3NzUxMjYxMjl9.wxHazgm9tRU463EouWcMjmWZeLah8L3ZUHow7e5sWhI
-### STUDENT TEST
-
-### =========================
-
-GET http://localhost:8080/students/me
-Authorization: {{studentToken}}
-
-###
-
-GET http://localhost:8080/students
-Authorization: {{studentToken}}
-
-### =========================
-
-### COMPANY LOGIN
-
-### =========================
-
-POST http://localhost:8080/auth/login?username=company1&password=admin
-
-### Copy token and paste below
-
-@companyToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55MSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3NzU0OTY4NzIsImV4cCI6MTc3NTUwMDQ3Mn0.thYiCKK0WBZuIrmxg8rTHQqqNHLlF8DN4RjCMDQza3o
-### =========================
-
-GET http://localhost:8080/jobs
-Authorization: {{companyToken}}
-
-###
-
-GET http://localhost:8080/students
-Authorization: {{companyToken}}
-
-### =========================
-
-### DATA ISOLATION TEST
-
-### COMPANY SEES ONLY ITS APPLICATIONS
-
-### =========================
-
-GET http://localhost:8080/applications/company
-Authorization: {{companyToken}}
-
-### Copy `applicationId` from /applications/company response and paste below
-@applicationId = 9
-
-### COMPANY SHORRTLISTS TOP 5 STUDENTS BASED ON FIT SCORE
-GET http://localhost:8080/applications/company/shortlist
-Authorization: {{companyToken}}
-
-
-### JOB SPECIFIC SHORTLIST
-GET http://localhost:8080/applications/company/shortlist/6?limit=3&minScore=50
-Authorization: {{companyToken}}
-
-### SHORTLIST AN APPLICATION
-PUT http://localhost:8080/applications/{{applicationId}}/status?status=SHORTLISTED
-Authorization: {{companyToken}}
-
-### REJECT AN APPLICATION
-PUT http://localhost:8080/applications/{{applicationId}}/status?status=REJECTED
-Authorization: {{companyToken}}
-
-
-
-### =========================
-### PLACEMENT LOGIN
-### =========================
-
-POST http://localhost:8080/auth/login?username=placement1&password=admin
-
-### Copy token and paste below
-
-@placementToken = Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwbGFjZW1lbnQxIiwicm9sZSI6IlBMQUNFTUVOVCIsImlhdCI6MTc3NDg5ODM0NSwiZXhwIjoxNzc0OTAxOTQ1fQ._N5o7qWF73LQ9lcRaM-tN3SwGeugwrLUXQGK1nGdopY
-### =========================
-
-### Placement sees ALL applications (controlled view)
-GET http://localhost:8080/applications/placement
-Authorization: {{placementToken}}
-
-### =========================
-### STUDENT APPLICATIONS
-### =========================
-
-GET http://localhost:8080/applications/me
-Authorization: {{studentToken}}
-
-### =========================
-### UPDATE STUDENT PROFILE
-### =========================
-
-PUT http://localhost:8080/students/me
-Authorization: {{studentToken}}
-Content-Type: application/json
-
-{
+  "name": "Naman",
+  "email": "{{studentEmail}}",
+  "password": "{{studentPassword}}",
+  "branch": "AI",
   "cgpa": 8.7,
-  "skills": "Java, Spring Boot, AI",
+  "skills": "Data Science, AI, ML, Python",
   "projects": "Placement Portal",
-  "resumeLink": "https://drive.google.com/sample",
+  "resumeLink": "https://drive.google.com/resume",
   "phone": "9999999999",
   "university": "MIT-WPU",
-  "graduationYear": 2026
+  "graduationYear": 2027
 }
 
-### =========================
+### Expected: created, signature present, integrityStatus CLEAN
+### If 409 conflict comes, continue to STEP 3 with same @studentEmail and @studentPassword=dev.
+### Copy returned id into @studentId if new record was created.
 
-### TEST WITHOUT TOKEN (SHOULD FAIL)
+### =====================================================
+### STEP 3: LOGIN AS STUDENT
+### =====================================================
+POST {{baseUrl}}/auth/login?username={{studentEmail}}&password={{studentPassword}}
 
-### =========================
-GET http://localhost:8080/students
+### Copy response token and paste into @studentToken
 
-
-### =========================
-### AUDIT LOGS (ADMIN ONLY)
-### =========================
-
-GET http://localhost:8080/audit
-Authorization: {{adminToken}}
-
-### VERIFY APPLICATION (TPU STYLE)
-GET http://localhost:8080/applications/10/verify
-Authorization: {{companyToken}}
-
-### =========================
-### FIT SCORE (STUDENT)
-### =========================
-
-GET http://localhost:8080/students/fit-score
+### =====================================================
+### STEP 4: STUDENT VIEWS OWN PROFILE
+### =====================================================
+GET {{baseUrl}}/students/me
 Authorization: {{studentToken}}
 
-### =========================
-### ANALYTICS - TOP CANDIDATES
-### =========================
+### Expected: profile + integrityStatus CLEAN
 
-GET http://localhost:8080/applications/analytics/top?jobId=6
+### =====================================================
+### STEP 5: STUDENT UPDATES OWN PROFILE (AUTO RE-SIGN)
+### =====================================================
+PUT {{baseUrl}}/students/me
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "cgpa": 8.4,
+  "skills": "Java,Spring,SQL",
+  "projects": "Placement Portal, ATS",
+  "resumeLink": "https://drive.google.com/resume-v2",
+  "phone": "9999999999",
+  "university": "MIT-WPU",
+  "graduationYear": 2027
+}
+
+### Expected: updated + integrityStatus CLEAN
+
+### =====================================================
+### STEP 6: CREATE COMPANY (ADMIN)
+### =====================================================
+POST {{baseUrl}}/companies
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "{{companyName}}",
+  "password": "admin",
+  "role": "Data Analyst",
+  "packageOffered": 25
+}
+
+### Copy returned id into @companyId if new record was created.
+
+### =====================================================
+### STEP 7: LOGIN AS COMPANY
+### =====================================================
+POST {{baseUrl}}/auth/login?username={{companyName}}&password=admin
+
+### Copy response token and paste into @companyToken
+
+### =====================================================
+### STEP 8: CREATE JOB (ADMIN OR COMPANY)
+### =====================================================
+POST {{baseUrl}}/jobs
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Data Analyst",
+  "description": "Data Engineer role at Atlassan",
+  "company": {
+    "id": {{companyId}}
+  }
+}
+
+### Copy returned id into @jobId
+
+### =====================================================
+### STEP 9: STUDENT APPLIES TO JOB
+### =====================================================
+POST {{baseUrl}}/applications
+Authorization: {{studentToken}}
+Content-Type: application/json
+
+{
+  "job": {
+    "id": {{jobId}}
+  }
+}
+
+### Expected: application created with signedPayload + signature
+### Copy returned id into @applicationId
+
+### =====================================================
+### STEP 10: COMPANY VIEWS ITS APPLICATIONS + VALIDITY
+### =====================================================
+GET {{baseUrl}}/applications/company
 Authorization: {{companyToken}}
 
-### AVERAGE SCORE
-GET http://localhost:8080/applications/analytics/average/6
+### Expected: each row has VALID DATA / TAMPERED DATA marker
+
+### =====================================================
+### STEP 11: VERIFY A SPECIFIC APPLICATION SIGNATURE
+### =====================================================
+GET {{baseUrl}}/applications/{{applicationId}}/verify
 Authorization: {{companyToken}}
 
-### SELECTION RATIO
-GET http://localhost:8080/applications/analytics/selection-ratio/6
+### Expected: VALID DATA
+
+### =====================================================
+### STEP 12: COMPANY SHORTLISTS AN APPLICATION
+### =====================================================
+PUT {{baseUrl}}/applications/{{applicationId}}/status?status=SHORTLISTED
 Authorization: {{companyToken}}
 
-### STATUS DISTRIBUTION
-GET http://localhost:8080/applications/analytics/status/6
+### Expected: status updated
+
+### =====================================================
+### STEP 13: LOGIN AS PLACEMENT
+### =====================================================
+POST {{baseUrl}}/auth/login?username=placement1&password=admin
+
+### Copy response token and paste into @placementToken
+
+### =====================================================
+### STEP 14: PLACEMENT VIEWS ALL APPLICATIONS
+### =====================================================
+GET {{baseUrl}}/applications/placement
+Authorization: {{placementToken}}
+
+### =====================================================
+### STEP 15: VIEW AUDIT LOGS (ADMIN OR PLACEMENT)
+### =====================================================
+GET {{baseUrl}}/audit
+Authorization: {{adminToken}}
+
+### =====================================================
+### STEP 16: RUN TPA AUDIT (ADMIN ONLY)
+### =====================================================
+GET {{baseUrl}}/tpa/audit
+Authorization: {{adminToken}}
+
+### Expected: list like 'Application ID X -> VALID' or 'TAMPERED'
+
+### =====================================================
+### STEP 17: ANALYTICS (COMPANY)
+### =====================================================
+GET {{baseUrl}}/applications/analytics/top?jobId={{jobId}}
 Authorization: {{companyToken}}
+
+### Average score
+GET {{baseUrl}}/applications/analytics/average/{{jobId}}
+Authorization: {{companyToken}}
+
+### Selection ratio
+GET {{baseUrl}}/applications/analytics/selection-ratio/{{jobId}}
+Authorization: {{companyToken}}
+
+### Status distribution
+GET {{baseUrl}}/applications/analytics/status/{{jobId}}
+Authorization: {{companyToken}}
+
+### =====================================================
+### STEP 18: NEGATIVE TEST - WRONG PASSWORD
+### =====================================================
+POST {{baseUrl}}/auth/login?username={{studentEmail}}&password=wrong
+
+### Expected: 401 Unauthorized
+
+### =====================================================
+### STEP 19: NEGATIVE TEST - NO TOKEN
+### =====================================================
+GET {{baseUrl}}/students
+
+### Expected: 403/401
+
+### =====================================================
+### STEP 20: NEGATIVE TEST - STUDENT CANNOT LIST ALL STUDENTS
+### =====================================================
+GET {{baseUrl}}/students
+Authorization: {{studentToken}}
+
+### Expected: 403 Forbidden
+
+### =====================================================
+### STEP 21: CANONICAL TAMPER DEMO (MANUAL DB STEP)
+### =====================================================
+### Run this in MySQL manually:
+###   USE placement_portal;
+###   UPDATE student SET cgpa = 10.0 WHERE id = {{studentId}};
+###   COMMIT;
+### Then verify via API:
+GET {{baseUrl}}/students/me
+Authorization: {{studentToken}}
+
+### Expected: integrityStatus becomes TAMPERED
+
+### Re-sign profile (owner action):
+POST {{baseUrl}}/students/me/resign
+Authorization: {{studentToken}}
+
+### Verify clean again:
+GET {{baseUrl}}/students/me
+Authorization: {{studentToken}}
+
+### Expected: integrityStatus back to CLEAN
+
+### =====================================================
+### STEP 22: JWT PERSISTENCE ACROSS RESTART
+### =====================================================
+### 1) Keep current student token from Step 3
+### 2) Restart app
+### 3) Re-run request below with SAME token
+GET {{baseUrl}}/students/me
+Authorization: {{studentToken}}
+
+### Expected: still works (keys are persisted)

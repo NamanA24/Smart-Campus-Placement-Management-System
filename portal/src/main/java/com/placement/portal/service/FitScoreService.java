@@ -2,6 +2,7 @@ package com.placement.portal.service;
 
 import com.placement.portal.entity.Student;
 import com.placement.portal.entity.Job;
+import com.placement.portal.entity.Application;
 import com.placement.portal.dto.FitScoreResponse;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +72,7 @@ public class FitScoreService {
         else level = "Needs Improvement";
 
         // SIGN DATA USING TPU
-        String data = student.getEmail() + job.getTitle() + score;
+        String data = buildSignedPayload(student, job, score);
 
         String signature = tpuService.signData(
                 data,
@@ -91,12 +92,34 @@ public class FitScoreService {
     // VERIFY SIGNATURE (NEW)
     public boolean verifySignature(Student student, Job job, int score, String signature) {
 
-        String data = student.getEmail() + job.getTitle() + score;
+        String data = buildSignedPayload(student, job, score);
 
         return tpuService.verifyData(
                 data,
                 signature,
                 student.getPublicKey()
+        );
+    }
+
+    public String buildSignedPayload(Student student, Job job, int score) {
+        return student.getEmail() + job.getTitle() + score;
+    }
+
+    public boolean verifyStoredSignature(Application app) {
+        if (app == null || app.getStudent() == null) {
+            return false;
+        }
+
+        String payload = app.getSignedPayload();
+
+        if (payload == null || payload.isBlank()) {
+            return false;
+        }
+
+        return tpuService.verifyData(
+                payload,
+                app.getSignature(),
+                app.getStudent().getPublicKey()
         );
     }
 }

@@ -2,6 +2,8 @@ package com.placement.portal.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 
 @Entity
 public class Student {
@@ -14,6 +16,9 @@ public class Student {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
     private String branch;
     private double cgpa;
@@ -29,9 +34,24 @@ public class Student {
     @Column(columnDefinition = "TEXT")
     private String privateKey;
 
+    @JsonIgnore
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signature;
+
+    @JsonIgnore
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signedPayload;
+
+    private LocalDateTime signedAt;
+
     @Lob
     @Column(columnDefinition = "TEXT")
     private String publicKey;
+
+    @Transient
+    private String integrityStatus;
 
     // getters & setters
     public Long getId() { return id; }
@@ -41,6 +61,9 @@ public class Student {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
     public String getBranch() { return branch; }
     public void setBranch(String branch) { this.branch = branch; }
@@ -71,5 +94,17 @@ public class Student {
 
     public String getPrivateKey() { return privateKey; }
     public void setPrivateKey(String privateKey) { this.privateKey = privateKey; }
+
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
+
+    public String getSignedPayload() { return signedPayload; }
+    public void setSignedPayload(String signedPayload) { this.signedPayload = signedPayload; }
+
+    public LocalDateTime getSignedAt() { return signedAt; }
+    public void setSignedAt(LocalDateTime signedAt) { this.signedAt = signedAt; }
+
+    public String getIntegrityStatus() { return integrityStatus; }
+    public void setIntegrityStatus(String integrityStatus) { this.integrityStatus = integrityStatus; }
 
 }

@@ -35,6 +35,16 @@ public class Application {
     public String getSignature() { return signature; }
     public void setSignature(String signature) { this.signature = signature; }  
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signedPayload;
+    public String getSignedPayload() { return signedPayload; }
+    public void setSignedPayload(String signedPayload) { this.signedPayload = signedPayload; }
+
+    private Integer signedScore;
+    public Integer getSignedScore() { return signedScore; }
+    public void setSignedScore(Integer signedScore) { this.signedScore = signedScore; }
+
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.APPLIED;
 }

@@ -3,9 +3,12 @@ package com.placement.portal.service;
 import com.placement.portal.util.RSAUtil;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
 
 @Service
 public class TPUService {
@@ -22,6 +25,16 @@ public class TPUService {
 
     public String encodePrivateKey(PrivateKey key) {
         return RSAUtil.encodePrivateKey(key);
+    }
+
+    public String hashData(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashed = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hashed);
+        } catch (Exception ex) {
+            throw new RuntimeException("Error hashing data", ex);
+        }
     }
 
     // SIGN DATA (String → PrivateKey → Signature)
