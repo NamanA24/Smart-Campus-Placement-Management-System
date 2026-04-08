@@ -84,6 +84,10 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
         }
 
+        if (student.getGender() == null || student.getGender().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gender is required");
+        }
+
         List<Student> existing = studentRepository.findAllByEmail(student.getEmail());
         if (!existing.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");

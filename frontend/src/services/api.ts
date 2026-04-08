@@ -9,6 +9,7 @@ import type {
   RawApplication,
   StatusDistribution,
   Student,
+  StudentPlacementView,
 } from '../types/models';
 
 const API_BASE_URL = 'http://localhost:8080';
@@ -68,8 +69,18 @@ export const authAPI = {
 export const studentAPI = {
   create: (data: Partial<Student> & { password?: string }) => apiClient.instance.post<Student>('/students', data),
   getAll: () => apiClient.instance.get<Student[]>('/students'),
+  getPlacementView: () => apiClient.instance.get<StudentPlacementView[]>('/students/placement-view'),
   getProfile: () => apiClient.instance.get<Student>('/students/me'),
   updateMine: (data: Partial<Student>) => apiClient.instance.put<Student>('/students/me', data),
+  uploadResume: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiClient.instance.post<Student>('/students/me/resume', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
   resign: () => apiClient.instance.post<Student>('/students/me/resign'),
   getFitScore: () => apiClient.instance.get<FitScoreResponse>('/students/fit-score'),
 };

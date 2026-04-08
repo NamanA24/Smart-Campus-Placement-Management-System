@@ -137,6 +137,8 @@ public class ApplicationController {
                 FitScoreResponse fit = fitScoreService.calculateFitScore(student, app.getJob());
 
                 boolean valid = fitScoreService.verifyStoredSignature(app);
+                
+                String studentIntegrityStatus = studentSecurityService.verifyProfileStatus(student);
 
                 if (!valid) {
                         app.setStatus(ApplicationStatus.REJECTED);
@@ -152,12 +154,25 @@ public class ApplicationController {
                 response.add(new ApplicationResponseDTO(
                         app.getId(),
                         student.getName(),
+                        student.getEmail(),
+                        student.getPhone(),
+                        student.getCgpa(),
+                        student.getSkills(),
+                        student.getProjects(),
+                        student.getResumeLink(),
+                        student.getUniversity(),
+                        student.getGraduationYear(),
                         app.getJob().getTitle(),
+                        app.getJob().getCompany().getName(),
+                        app.getJob().getCompany().getRole(),
+                        app.getJob().getDescription(),
+                        app.getJob().getRequiredSkills(),
                         fit.getScore(),
                         fit.getLevel(),
                         app.getStatus().toString(),
                         app.getSignature(),
-                        valid ? "VALID DATA" : "TAMPERED DATA"
+                        valid ? "VALID DATA" : "TAMPERED DATA",
+                        studentIntegrityStatus
                 ));
         }
 
@@ -183,16 +198,31 @@ public class ApplicationController {
                 Student student = app.getStudent();
 
                 var fit = fitScoreService.calculateFitScore(student, app.getJob());
+                
+                String studentIntegrityStatus = studentSecurityService.verifyProfileStatus(student);
 
                 response.add(new ApplicationResponseDTO(
                         app.getId(),
                         student.getName(),
+                        student.getEmail(),
+                        student.getPhone(),
+                        student.getCgpa(),
+                        student.getSkills(),
+                        student.getProjects(),
+                        student.getResumeLink(),
+                        student.getUniversity(),
+                        student.getGraduationYear(),
                         app.getJob().getTitle(),
+                        app.getJob().getCompany().getName(),
+                        app.getJob().getCompany().getRole(),
+                        app.getJob().getDescription(),
+                        app.getJob().getRequiredSkills(),
                         fit.getScore(),
                         fit.getLevel(),
                         app.getStatus().toString(),
                         app.getSignature(),
-                        fitScoreService.verifyStoredSignature(app) ? "VALID DATA" : "TAMPERED DATA"
+                        fitScoreService.verifyStoredSignature(app) ? "VALID DATA" : "TAMPERED DATA",
+                        studentIntegrityStatus
                 ));
         }
 
@@ -226,18 +256,32 @@ public class ApplicationController {
                 Student student = app.getStudent();
 
                 var fit = fitScoreService.calculateFitScore(student, app.getJob());
+                
+                String studentIntegrityStatus = studentSecurityService.verifyProfileStatus(student);
 
                 if (fit.getScore() >= minScore) {
                         response.add(new ApplicationResponseDTO(
                                 app.getId(),
                                 student.getName(),
+                                student.getEmail(),
+                                student.getPhone(),
+                                student.getCgpa(),
+                                student.getSkills(),
+                                student.getProjects(),
+                                student.getResumeLink(),
+                                student.getUniversity(),
+                                student.getGraduationYear(),
                                 app.getJob().getTitle(),
+                                app.getJob().getCompany().getName(),
+                                app.getJob().getCompany().getRole(),
+                                app.getJob().getDescription(),
+                                app.getJob().getRequiredSkills(),
                                 fit.getScore(),
                                 fit.getLevel(),
                                 app.getStatus().toString(),
                                 app.getSignature(),
-                                fitScoreService.verifyStoredSignature(app) ? "VALID DATA" : "TAMPERED DATA"
-
+                                fitScoreService.verifyStoredSignature(app) ? "VALID DATA" : "TAMPERED DATA",
+                                studentIntegrityStatus
                         ));
                 }
         }
@@ -307,16 +351,31 @@ public class ApplicationController {
                 FitScoreResponse fit = fitScoreService.calculateFitScore(student, app.getJob());
 
                 boolean valid = fitScoreService.verifyStoredSignature(app);
+                
+                String studentIntegrityStatus = studentSecurityService.verifyProfileStatus(student);
 
                 response.add(new ApplicationResponseDTO(
                         app.getId(),
                         student.getName(),
+                        student.getEmail(),
+                        student.getPhone(),
+                        student.getCgpa(),
+                        student.getSkills(),
+                        student.getProjects(),
+                        student.getResumeLink(),
+                        student.getUniversity(),
+                        student.getGraduationYear(),
                         app.getJob().getTitle(),
+                        app.getJob().getCompany().getName(),
+                        app.getJob().getCompany().getRole(),
+                        app.getJob().getDescription(),
+                        app.getJob().getRequiredSkills(),
                         fit.getScore(),
                         fit.getLevel(),
                         app.getStatus().toString(),
                         app.getSignature(),
-                        valid ? "VALID DATA" : "TAMPERED DATA"
+                        valid ? "VALID DATA" : "TAMPERED DATA",
+                        studentIntegrityStatus
                 ));
         }
 

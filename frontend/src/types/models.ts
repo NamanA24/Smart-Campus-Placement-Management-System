@@ -12,6 +12,7 @@ export interface Student {
   name: string;
   email: string;
   branch: string;
+  gender?: string;
   cgpa: number;
   skills: string;
   projects: string;
@@ -21,6 +22,20 @@ export interface Student {
   graduationYear: number;
   signedAt?: string;
   integrityStatus?: 'CLEAN' | 'TAMPERED' | 'UNSIGNED' | string;
+}
+
+export interface StudentPlacementView {
+  id: number;
+  name: string;
+  cgpa: number;
+  skills: string;
+  projects: string;
+  resumeLink: string;
+  graduationYear: number;
+  university: string;
+  gender?: string;
+  phone: string;
+  email: string;
 }
 
 export interface Company {
@@ -58,12 +73,25 @@ export interface RawApplication {
 export interface ApplicationResponseDTO {
   applicationId: number;
   studentName: string;
+  studentEmail?: string;
+  studentPhone?: string;
+  studentCgpa?: number;
+  studentSkills?: string;
+  studentProjects?: string;
+  studentResumeLink?: string;
+  studentUniversity?: string;
+  studentGraduationYear?: number;
   jobTitle: string;
+  companyName?: string;
+  companyRole?: string;
+  jobDescription?: string;
+  requiredSkills?: string;
   fitScore: number;
   level: string;
   status: string;
   signature: string;
   verification: string;
+  studentIntegrityStatus?: string;
 }
 
 export interface FitScoreResponse {

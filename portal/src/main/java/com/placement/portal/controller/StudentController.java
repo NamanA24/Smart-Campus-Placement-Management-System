@@ -1,5 +1,6 @@
 package com.placement.portal.controller;
 
+import com.placement.portal.dto.StudentPlacementDTO;
 import com.placement.portal.dto.FitScoreResponse;
 import com.placement.portal.entity.Student;
 import com.placement.portal.repository.StudentRepository;
@@ -8,19 +9,34 @@ import com.placement.portal.service.FitScoreService;
 import com.placement.portal.service.StudentSecurityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/students")
 public class StudentController {
+
+    private static final Path RESUME_ROOT = Paths.get("uploads", "resumes");
 
     @Autowired
     private StudentRepository studentRepository;
@@ -40,6 +56,7 @@ public class StudentController {
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
         validateEmailForCreate(student.getEmail());
+        validateGender(student.getGender());
         ensurePassword(student);
         studentSecurityService.signProfile(student);
 
@@ -101,6 +118,9 @@ public class StudentController {
                 student.setEmail(newEmail);
             }
             student.setBranch(updatedStudent.getBranch());
+            if (updatedStudent.getGender() != null && !updatedStudent.getGender().isBlank()) {
+                student.setGender(updatedStudent.getGender());
+            }
             student.setCgpa(updatedStudent.getCgpa());
             student.setSkills(updatedStudent.getSkills());
             student.setProjects(updatedStudent.getProjects());
@@ -132,6 +152,9 @@ public class StudentController {
 
         Student student = resolveSingleStudentByEmail(email);
 
+        if (updatedStudent.getGender() != null && !updatedStudent.getGender().isBlank()) {
+            student.setGender(updatedStudent.getGender());
+        }
         student.setCgpa(updatedStudent.getCgpa());
         student.setSkills(updatedStudent.getSkills());
         student.setProjects(updatedStudent.getProjects());
@@ -146,6 +169,79 @@ public class StudentController {
         auditService.log("STUDENT_UPDATED_SELF", saved.getEmail(), "Student profile updated and re-signed by owner");
 
         return applyIntegrityStatus(saved);
+    }
+
+    @PostMapping(value = "/me/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Student uploadMyResume(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file is required");
+        }
+
+        String email = currentUsername();
+        Student student = resolveSingleStudentByEmail(email);
+
+        String storedFileName = storeResumeFile(student.getId(), file);
+        student.setResumeLink("/students/resume/" + student.getId() + "/" + storedFileName);
+        studentSecurityService.signProfile(student);
+
+        Student saved = studentRepository.save(student);
+        auditService.log("STUDENT_RESUME_UPLOADED", saved.getEmail(), "Resume uploaded: " + storedFileName);
+        return applyIntegrityStatus(saved);
+    }
+
+    @GetMapping("/resume/{studentId}/{filename:.+}")
+    public ResponseEntity<Resource> getResume(
+            @PathVariable Long studentId,
+            @PathVariable String filename
+    ) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+
+        String expectedLink = "/students/resume/" + studentId + "/" + filename;
+        if (student.getResumeLink() == null || !student.getResumeLink().equals(expectedLink)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resume not found");
+        }
+
+        Path filePath = RESUME_ROOT.resolve(String.valueOf(studentId)).resolve(filename).normalize();
+        if (!Files.exists(filePath)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resume file not found on disk");
+        }
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null || contentType.isBlank()) {
+                contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .body(resource);
+        } catch (MalformedURLException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not load resume", ex);
+        } catch (IOException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not determine resume type", ex);
+        }
+    }
+
+    @GetMapping("/placement-view")
+    public List<StudentPlacementDTO> getPlacementView() {
+        return studentRepository.findAll().stream()
+                .map(student -> new StudentPlacementDTO(
+                        student.getId(),
+                        student.getName(),
+                        student.getCgpa(),
+                        student.getSkills(),
+                        student.getProjects(),
+                        student.getResumeLink(),
+                        student.getGraduationYear(),
+                        student.getUniversity(),
+                        student.getGender(),
+                        student.getPhone(),
+                        student.getEmail()
+                ))
+                .toList();
     }
 
     @PostMapping("/me/resign")
@@ -202,6 +298,12 @@ public class StudentController {
         }
     }
 
+    private void validateGender(String gender) {
+        if (gender == null || gender.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gender is required");
+        }
+    }
+
     private String currentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
@@ -216,6 +318,25 @@ public class StudentController {
             rawPassword = "dev";
         }
         student.setPassword(passwordEncoder.encode(rawPassword));
+    }
+
+    private String storeResumeFile(Long studentId, MultipartFile file) {
+        String originalName = file.getOriginalFilename() == null
+                ? "resume"
+                : Paths.get(file.getOriginalFilename()).getFileName().toString();
+
+        String safeName = originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String storedName = LocalDateTime.now().toString().replace(":", "-") + "_" + safeName;
+
+        Path studentDir = RESUME_ROOT.resolve(String.valueOf(studentId));
+        try {
+            Files.createDirectories(studentDir);
+            Path target = studentDir.resolve(storedName).normalize();
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            return storedName;
+        } catch (IOException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store resume", ex);
+        }
     }
 }
 

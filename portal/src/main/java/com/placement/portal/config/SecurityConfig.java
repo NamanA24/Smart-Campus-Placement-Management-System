@@ -73,6 +73,15 @@ public class SecurityConfig {
                 .requestMatchers("/students/fit-score")
                     .hasAuthority("ROLE_STUDENT")
 
+                .requestMatchers(HttpMethod.POST, "/students/me/resume")
+                    .hasAuthority("ROLE_STUDENT")
+
+                .requestMatchers(HttpMethod.GET, "/students/resume/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_PLACEMENT", "ROLE_STUDENT", "ROLE_COMPANY")
+
+                .requestMatchers(HttpMethod.GET, "/students/placement-view")
+                    .hasAnyAuthority("ROLE_PLACEMENT", "ROLE_ADMIN")
+
                 // Admin only (KEEP AFTER /students/me)
                 .requestMatchers(HttpMethod.POST, "/students")
                     .hasAuthority("ROLE_ADMIN")

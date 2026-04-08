@@ -12,10 +12,11 @@ export const StudentPage = () => {
   const [applications, setApplications] = useState<ApplicationDTO[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [fitScore, setFitScore] = useState<FitScoreResponse | null>(null);
-  const [selectedJobId, setSelectedJobId] = useState<number | ''>('');
   const [toastOpen, setToastOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [uploadingResume, setUploadingResume] = useState(false);
 
   const profileForm = useMemo(() => ({
     cgpa: profile?.cgpa ?? 0,
@@ -104,18 +105,33 @@ export const StudentPage = () => {
     }
   };
 
-  const handleApply = async () => {
-    if (!selectedJobId) {
-      return;
-    }
+  const handleApply = async (jobId: number) => {
     setError('');
     try {
-      await applicationAPI.create(selectedJobId);
+      await applicationAPI.create(jobId);
       const appsRes = await applicationAPI.getByStudent();
       setApplications(appsRes.data);
-      setSelectedJobId('');
     } catch {
       setError('Job application failed. If profile is tampered, re-sign first.');
+    }
+  };
+
+  const handleResumeUpload = async () => {
+    if (!resumeFile) {
+      return;
+    }
+
+    setError('');
+    setUploadingResume(true);
+    try {
+      const res = await studentAPI.uploadResume(resumeFile);
+      setProfile(res.data);
+      setFormState((prev) => ({ ...prev, resumeLink: res.data.resumeLink || '' }));
+      setResumeFile(null);
+    } catch {
+      setError('Resume upload failed');
+    } finally {
+      setUploadingResume(false);
     }
   };
 
@@ -190,6 +206,35 @@ export const StudentPage = () => {
                 onChange={(e) => setFormState((prev) => ({ ...prev, graduationYear: Number(e.target.value) }))} />
             </label>
           </div>
+          <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3">
+            <p className="text-xs font-medium text-slate-600">Resume Upload</p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                className="text-sm text-slate-700"
+              />
+              <button
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60"
+                onClick={handleResumeUpload}
+                disabled={!resumeFile || uploadingResume}
+                type="button"
+              >
+                {uploadingResume ? 'Uploading...' : 'Upload Resume'}
+              </button>
+              {profile.resumeLink ? (
+                <a
+                  href={profile.resumeLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm font-semibold text-primary-700 hover:text-primary-800"
+                >
+                  Open Current Resume
+                </a>
+              ) : null}
+            </div>
+          </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <button className="rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800" onClick={handleUpdate} disabled={saving}>
               {saving ? 'Saving...' : 'Save Profile'}
@@ -200,23 +245,36 @@ export const StudentPage = () => {
           </div>
         </SectionCard>
 
-        <SectionCard title="Apply to Jobs" subtitle="Apply using signed profile">
-          <div className="flex flex-wrap items-center gap-3">
-            <select
-              className="min-w-[260px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              value={selectedJobId}
-              onChange={(e) => setSelectedJobId(e.target.value ? Number(e.target.value) : '')}
-            >
-              <option value="">Select a job</option>
-              {jobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.title} - {job.company?.name}
-                </option>
-              ))}
-            </select>
-            <button className="rounded-lg bg-secondary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-secondary-800" onClick={handleApply}>
-              Submit Application
-            </button>
+        <SectionCard title="Apply to Jobs" subtitle="See full job details before applying">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-slate-600">
+                  <th className="py-2 pr-4">Company</th>
+                  <th className="py-2 pr-4">Role</th>
+                  <th className="py-2 pr-4">Job Title</th>
+                  <th className="py-2 pr-4">Description</th>
+                  <th className="py-2 pr-4">Required Skills</th>
+                  <th className="py-2 pr-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobs.map((job) => (
+                  <tr key={job.id} className="border-b border-slate-100">
+                    <td className="py-2 pr-4">{job.company?.name}</td>
+                    <td className="py-2 pr-4">{job.company?.role || 'N/A'}</td>
+                    <td className="py-2 pr-4">{job.title}</td>
+                    <td className="py-2 pr-4">{job.description}</td>
+                    <td className="py-2 pr-4">{job.requiredSkills || 'N/A'}</td>
+                    <td className="py-2 pr-4">
+                      <button className="rounded-lg bg-secondary-700 px-3 py-2 text-xs font-semibold text-white hover:bg-secondary-800" onClick={() => handleApply(job.id)}>
+                        Apply
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </SectionCard>
 

@@ -114,14 +114,51 @@ export const CompanyPage = () => {
           </button>
         </SectionCard>
 
+        <SectionCard title="My Job Listings" subtitle="Role, title, description and requirements visibility">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-slate-600">
+                  <th className="py-2 pr-4">Company</th>
+                  <th className="py-2 pr-4">Role</th>
+                  <th className="py-2 pr-4">Job Title</th>
+                  <th className="py-2 pr-4">Description</th>
+                  <th className="py-2 pr-4">Required Skills</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myJobs.map((job) => (
+                  <tr key={job.id} className="border-b border-slate-100">
+                    <td className="py-2 pr-4">{job.company?.name}</td>
+                    <td className="py-2 pr-4">{job.company?.role || 'N/A'}</td>
+                    <td className="py-2 pr-4">{job.title}</td>
+                    <td className="py-2 pr-4">{job.description}</td>
+                    <td className="py-2 pr-4">{job.requiredSkills || 'N/A'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
+
         <SectionCard title="Applications and Verification">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-left text-slate-600">
                   <th className="py-2 pr-4">Student</th>
+                  <th className="py-2 pr-4">Email</th>
+                  <th className="py-2 pr-4">Phone</th>
+                  <th className="py-2 pr-4">CGPA</th>
+                  <th className="py-2 pr-4">Skills</th>
+                  <th className="py-2 pr-4">Projects</th>
+                  <th className="py-2 pr-4">Resume</th>
                   <th className="py-2 pr-4">Job</th>
+                  <th className="py-2 pr-4">Role</th>
+                  <th className="py-2 pr-4">Description</th>
+                  <th className="py-2 pr-4">Required Skills</th>
                   <th className="py-2 pr-4">Fit Score</th>
+                  <th className="py-2 pr-4">Profile Status</th>
                   <th className="py-2 pr-4">Integrity</th>
                   <th className="py-2 pr-4">Status</th>
                   <th className="py-2 pr-4">Actions</th>
@@ -131,8 +168,22 @@ export const CompanyPage = () => {
                 {applications.map((row) => (
                   <tr key={row.applicationId} className="border-b border-slate-100">
                     <td className="py-2 pr-4">{row.studentName}</td>
+                    <td className="py-2 pr-4">{row.studentEmail || 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.studentPhone || 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.studentCgpa ?? 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.studentSkills || 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.studentProjects || 'N/A'}</td>
+                    <td className="py-2 pr-4">
+                      {row.studentResumeLink ? (
+                        <a href={row.studentResumeLink} target="_blank" rel="noreferrer" className="font-semibold text-primary-700 hover:text-primary-800">Open</a>
+                      ) : 'N/A'}
+                    </td>
                     <td className="py-2 pr-4">{row.jobTitle}</td>
+                    <td className="py-2 pr-4">{row.companyRole || 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.jobDescription || 'N/A'}</td>
+                    <td className="py-2 pr-4">{row.requiredSkills || 'N/A'}</td>
                     <td className="py-2 pr-4">{row.fitScore}</td>
+                    <td className="py-2 pr-4"><StatusPill label={row.studentIntegrityStatus || 'UNKNOWN'} /></td>
                     <td className="py-2 pr-4"><StatusPill label={row.verification} /></td>
                     <td className="py-2 pr-4"><StatusPill label={row.status} /></td>
                     <td className="py-2 pr-4">

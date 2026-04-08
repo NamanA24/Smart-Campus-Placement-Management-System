@@ -12,6 +12,7 @@ export const RegisterStudentPage = () => {
     email: '',
     password: '',
     branch: '',
+    gender: '',
     cgpa: 0,
     skills: '',
     projects: '',
@@ -60,6 +61,15 @@ export const RegisterStudentPage = () => {
             <label className="text-sm text-slate-700">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.email} onChange={(e) => update('email', e.target.value)} required /></label>
             <label className="text-sm text-slate-700">Password<input type="password" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.password} onChange={(e) => update('password', e.target.value)} required /></label>
             <label className="text-sm text-slate-700">Branch<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.branch} onChange={(e) => update('branch', e.target.value)} required /></label>
+            <label className="text-sm text-slate-700">
+              Gender
+              <select className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.gender} onChange={(e) => update('gender', e.target.value)} required>
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
             <label className="text-sm text-slate-700">CGPA<input type="number" step="0.1" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.cgpa} onChange={(e) => update('cgpa', Number(e.target.value))} required /></label>
             <label className="text-sm text-slate-700">Phone<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.phone} onChange={(e) => update('phone', e.target.value)} required /></label>
             <label className="text-sm text-slate-700 md:col-span-2">Skills<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.skills} onChange={(e) => update('skills', e.target.value)} required /></label>

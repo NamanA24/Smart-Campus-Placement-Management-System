@@ -21,6 +21,7 @@ public class Student {
     private String password;
 
     private String branch;
+    private String gender;
     private double cgpa;
     private String skills;
     private String projects;
@@ -67,6 +68,9 @@ public class Student {
 
     public String getBranch() { return branch; }
     public void setBranch(String branch) { this.branch = branch; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
     public double getCgpa() { return cgpa; }
     public void setCgpa(double cgpa) { this.cgpa = cgpa; }

@@ -17,6 +17,7 @@ export const AdminPage = () => {
     email: '',
     password: 'dev',
     branch: '',
+    gender: '',
     cgpa: 0,
     skills: '',
     projects: '',
@@ -76,6 +77,7 @@ export const AdminPage = () => {
       email: '',
       password: 'dev',
       branch: '',
+      gender: '',
       cgpa: 0,
       skills: '',
       projects: '',
@@ -130,6 +132,12 @@ export const AdminPage = () => {
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Name" value={studentForm.name} onChange={(e) => setStudentForm((prev) => ({ ...prev, name: e.target.value }))} />
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Email" value={studentForm.email} onChange={(e) => setStudentForm((prev) => ({ ...prev, email: e.target.value }))} />
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Branch" value={studentForm.branch} onChange={(e) => setStudentForm((prev) => ({ ...prev, branch: e.target.value }))} />
+            <select className="rounded-lg border border-slate-300 px-3 py-2 text-sm" value={studentForm.gender} onChange={(e) => setStudentForm((prev) => ({ ...prev, gender: e.target.value }))}>
+              <option value="">Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" type="number" step="0.1" placeholder="CGPA" value={studentForm.cgpa} onChange={(e) => setStudentForm((prev) => ({ ...prev, cgpa: Number(e.target.value) }))} />
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Skills" value={studentForm.skills} onChange={(e) => setStudentForm((prev) => ({ ...prev, skills: e.target.value }))} />
             <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="University" value={studentForm.university} onChange={(e) => setStudentForm((prev) => ({ ...prev, university: e.target.value }))} />
@@ -180,13 +188,22 @@ export const AdminPage = () => {
           </div>
         </SectionCard>
 
-        <SectionCard title="Students Integrity">
+        <SectionCard title="Students Full Data (Admin)">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-left text-slate-600">
                   <th className="py-2 pr-4">Name</th>
                   <th className="py-2 pr-4">Email</th>
+                  <th className="py-2 pr-4">Phone</th>
+                  <th className="py-2 pr-4">Gender</th>
+                  <th className="py-2 pr-4">Branch</th>
+                  <th className="py-2 pr-4">CGPA</th>
+                  <th className="py-2 pr-4">Skills</th>
+                  <th className="py-2 pr-4">Projects</th>
+                  <th className="py-2 pr-4">Resume</th>
+                  <th className="py-2 pr-4">University</th>
+                  <th className="py-2 pr-4">Grad Year</th>
                   <th className="py-2 pr-4">Integrity</th>
                 </tr>
               </thead>
@@ -195,6 +212,19 @@ export const AdminPage = () => {
                   <tr key={student.id} className="border-b border-slate-100">
                     <td className="py-2 pr-4">{student.name}</td>
                     <td className="py-2 pr-4">{student.email}</td>
+                    <td className="py-2 pr-4">{student.phone}</td>
+                    <td className="py-2 pr-4">{student.gender || 'N/A'}</td>
+                    <td className="py-2 pr-4">{student.branch}</td>
+                    <td className="py-2 pr-4">{student.cgpa}</td>
+                    <td className="py-2 pr-4">{student.skills}</td>
+                    <td className="py-2 pr-4">{student.projects}</td>
+                    <td className="py-2 pr-4">
+                      {student.resumeLink ? (
+                        <a href={student.resumeLink} target="_blank" rel="noreferrer" className="font-semibold text-primary-700 hover:text-primary-800">Open</a>
+                      ) : 'N/A'}
+                    </td>
+                    <td className="py-2 pr-4">{student.university}</td>
+                    <td className="py-2 pr-4">{student.graduationYear}</td>
                     <td className="py-2 pr-4"><StatusPill label={student.integrityStatus || 'UNSIGNED'} /></td>
                   </tr>
                 ))}

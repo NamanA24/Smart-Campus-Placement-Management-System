@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import { SectionCard } from '../components/SectionCard';
-import { applicationAPI, auditAPI } from '../services/api';
-import type { ApplicationDTO, AuditLog } from '../types/models';
+import { applicationAPI, auditAPI, studentAPI } from '../services/api';
+import type { ApplicationDTO, AuditLog, StudentPlacementView } from '../types/models';
 import { useAuth } from '../context/AuthContext';
 
 export const PlacementPage = () => {
   const { user } = useAuth();
   const [applications, setApplications] = useState<ApplicationDTO[]>([]);
+  const [placementStudents, setPlacementStudents] = useState<StudentPlacementView[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [message, setMessage] = useState('');
 
@@ -25,11 +26,15 @@ export const PlacementPage = () => {
             status: item.status || 'APPLIED',
           }));
           setApplications(mapped);
+          const studentsRes = await studentAPI.getPlacementView();
+          setPlacementStudents(studentsRes.data);
           return;
         }
 
         const appsRes = await applicationAPI.getForPlacement();
         setApplications(appsRes.data);
+        const studentsRes = await studentAPI.getPlacementView();
+        setPlacementStudents(studentsRes.data);
       } catch {
         setMessage('Unable to load placement dashboard data');
       }
@@ -70,6 +75,47 @@ export const PlacementPage = () => {
                     <td className="py-2 pr-4">{row.studentName}</td>
                     <td className="py-2 pr-4">{row.jobTitle}</td>
                     <td className="py-2 pr-4">{row.status || 'APPLIED'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Placement Student Data (Relevant Fields Only)">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-slate-600">
+                  <th className="py-2 pr-4">Name</th>
+                  <th className="py-2 pr-4">CGPA</th>
+                  <th className="py-2 pr-4">Skills</th>
+                  <th className="py-2 pr-4">Projects</th>
+                  <th className="py-2 pr-4">Resume</th>
+                  <th className="py-2 pr-4">Grad Year</th>
+                  <th className="py-2 pr-4">University</th>
+                  <th className="py-2 pr-4">Gender</th>
+                  <th className="py-2 pr-4">Contact</th>
+                  <th className="py-2 pr-4">Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {placementStudents.map((student) => (
+                  <tr key={student.id} className="border-b border-slate-100">
+                    <td className="py-2 pr-4">{student.name}</td>
+                    <td className="py-2 pr-4">{student.cgpa}</td>
+                    <td className="py-2 pr-4">{student.skills}</td>
+                    <td className="py-2 pr-4">{student.projects}</td>
+                    <td className="py-2 pr-4">
+                      {student.resumeLink ? (
+                        <a href={student.resumeLink} target="_blank" rel="noreferrer" className="font-semibold text-primary-700 hover:text-primary-800">Open</a>
+                      ) : 'N/A'}
+                    </td>
+                    <td className="py-2 pr-4">{student.graduationYear}</td>
+                    <td className="py-2 pr-4">{student.university}</td>
+                    <td className="py-2 pr-4">{student.gender || 'N/A'}</td>
+                    <td className="py-2 pr-4">{student.phone}</td>
+                    <td className="py-2 pr-4">{student.email}</td>
                   </tr>
                 ))}
               </tbody>
