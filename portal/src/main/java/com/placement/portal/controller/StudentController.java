@@ -56,6 +56,8 @@ public class StudentController {
                 studentSecurityService.ensureKeys(student);
                 studentRepository.save(student);
             }
+
+            student.setIntegrityStatus(studentSecurityService.verifyProfileStatus(student));
         }
         return students;
     }

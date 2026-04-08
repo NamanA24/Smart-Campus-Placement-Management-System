@@ -19,6 +19,9 @@ public class TPAService {
     @Autowired
     private TPUService tpuService;
 
+    @Autowired
+    private StudentSecurityService studentSecurityService;
+
     public List<String> auditAllApplications() {
 
         List<Application> applications = applicationRepository.findAll();
@@ -31,6 +34,12 @@ public class TPAService {
                 Student student = app.getStudent();
                 String payload = app.getSignedPayload();
                 String signature = app.getSignature();
+
+                String profileStatus = studentSecurityService.verifyProfileStatus(student);
+                if (!"CLEAN".equals(profileStatus)) {
+                    results.add("Application ID " + app.getId() + " -> TAMPERED (PROFILE_" + profileStatus + ")");
+                    continue;
+                }
 
                 if (signature == null || signature.isBlank() || "NO_SIGNATURE".equals(signature)) {
                     results.add("Application ID " + app.getId() + " -> UNSIGNED");
