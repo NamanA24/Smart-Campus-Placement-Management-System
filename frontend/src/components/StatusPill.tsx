@@ -1,25 +1,32 @@
+import React from 'react';
+import { CheckCircle2, XCircle, Clock, AlertTriangle, Info } from 'lucide-react';
+
 interface StatusPillProps {
   label: string;
 }
 
-const getClasses = (label: string): string => {
-  const normalized = label.toUpperCase();
-
-  if (normalized.includes('TAMPERED') || normalized.includes('REJECTED')) {
-    return 'bg-rose-100 text-rose-700 border-rose-200';
-  }
-  if (normalized.includes('CLEAN') || normalized.includes('VALID') || normalized.includes('SHORTLISTED')) {
-    return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  }
-  if (normalized.includes('UNSIGNED') || normalized.includes('APPLIED')) {
-    return 'bg-amber-100 text-amber-700 border-amber-200';
-  }
-  return 'bg-slate-100 text-slate-700 border-slate-200';
+const statusMap: Record<string, { className: string; icon: React.ReactNode }> = {
+  CLEAN: { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
+  SIGNED: { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
+  SHORTLISTED: { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
+  SELECTED: { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
+  TAMPERED: { className: 'pill pill-red', icon: <AlertTriangle size={12} /> },
+  REJECTED: { className: 'pill pill-red', icon: <XCircle size={12} /> },
+  'TAMPERED DATA': { className: 'pill pill-red', icon: <AlertTriangle size={12} /> },
+  APPLIED: { className: 'pill pill-blue', icon: <Info size={12} /> },
+  PENDING: { className: 'pill pill-amber', icon: <Clock size={12} /> },
+  UNSIGNED: { className: 'pill pill-amber', icon: <Clock size={12} /> },
+  CLEAN_DATA: { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
+  UNDER_REVIEW: { className: 'pill pill-amber', icon: <Clock size={12} /> },
+  'VALID SIGNATURE': { className: 'pill pill-green', icon: <CheckCircle2 size={12} /> },
 };
 
-export const StatusPill = ({ label }: StatusPillProps) => {
+export const StatusPill: React.FC<StatusPillProps> = ({ label }) => {
+  const normalized = (label || '').toUpperCase();
+  const config = statusMap[normalized] ?? { className: 'pill pill-slate', icon: <Info size={12} /> };
   return (
-    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide ${getClasses(label)}`}>
+    <span className={config.className}>
+      {config.icon}
       {label}
     </span>
   );

@@ -1,23 +1,38 @@
-import type { ReactNode } from 'react';
+import React from 'react';
 
 interface SectionCardProps {
-  title: string;
+  title?: string;
   subtitle?: string;
-  right?: ReactNode;
-  children: ReactNode;
+  right?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  noPadding?: boolean;
 }
 
-export const SectionCard = ({ title, subtitle, right, children }: SectionCardProps) => {
+export const SectionCard: React.FC<SectionCardProps> = ({
+  title,
+  subtitle,
+  right,
+  children,
+  className = '',
+  noPadding = false,
+}) => {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <header className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
-        <div>
-          <h2 className="font-sora text-lg font-semibold text-slate-900">{title}</h2>
-          {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+    <div className={`page-card animate-fadeIn ${className}`}>
+      {(title || right) && (
+        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-100">
+          <div>
+            {title && (
+              <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+            )}
+            {subtitle && (
+              <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>
+            )}
+          </div>
+          {right && <div className="flex-shrink-0">{right}</div>}
         </div>
-        {right ? <div>{right}</div> : null}
-      </header>
-      <div className="px-5 py-4">{children}</div>
-    </section>
+      )}
+      <div className={noPadding ? '' : 'p-6'}>{children}</div>
+    </div>
   );
 };
