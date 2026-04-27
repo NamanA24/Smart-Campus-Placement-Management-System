@@ -7,6 +7,7 @@ import com.placement.portal.repository.StudentRepository;
 import com.placement.portal.security.JwtUtil;
 import com.placement.portal.service.AuditService;
 import com.placement.portal.service.StudentSecurityService;
+import com.placement.portal.util.InputValidationUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,6 +64,10 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required");
         }
 
+        if (password == null || password.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
+        }
+
         if (isStudent(username, password)) {
             role = "STUDENT";
         } else if (isCompany(username, password)) {
@@ -80,13 +85,7 @@ public class AuthController {
 
     @PostMapping("/register/student")
     public Student registerStudent(@RequestBody Student student) {
-        if (student.getEmail() == null || student.getEmail().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
-        }
-
-        if (student.getGender() == null || student.getGender().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gender is required");
-        }
+        InputValidationUtil.validateAndNormalizeStudentForCreate(student, true, true);
 
         List<Student> existing = studentRepository.findAllByEmail(student.getEmail());
         if (!existing.isEmpty()) {

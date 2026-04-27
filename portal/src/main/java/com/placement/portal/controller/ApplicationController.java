@@ -285,7 +285,7 @@ public class ApplicationController {
                         ));
                 }
         }
-
+                                       
         response.sort((a, b) -> b.getFitScore() - a.getFitScore());
 
         return response.stream().limit(limit).toList();

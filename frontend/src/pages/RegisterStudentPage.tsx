@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { authAPI } from '../services/api';
+import { validateStudentFields } from '../utils/validation';
 
 export const RegisterStudentPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -28,6 +30,18 @@ export const RegisterStudentPage = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validateStudentFields(form, {
+      requirePassword: true,
+      requireProjects: true,
+      requireResumeLink: true,
+    });
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
     setLoading(true);
     setError('');
     try {
@@ -49,6 +63,17 @@ export const RegisterStudentPage = () => {
         </div>
 
         <form onSubmit={submit} className="rounded-xl bg-white p-6 shadow-2xl">
+          {validationErrors.length > 0 ? (
+            <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {validationErrors.map((item) => (
+                <p key={item} className="flex items-center gap-2 py-0.5">
+                  <AlertCircle size={16} />
+                  <span>{item}</span>
+                </p>
+              ))}
+            </div>
+          ) : null}
+
           {error ? (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
               <AlertCircle size={18} />
@@ -57,7 +82,7 @@ export const RegisterStudentPage = () => {
           ) : null}
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm text-slate-700">Name<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.name} onChange={(e) => update('name', e.target.value)} required /></label>
+            <label className="text-sm text-slate-700">Name<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.name} onChange={(e) => update('name', e.target.value.replace(/[^A-Za-z\s]/g, ''))} required /></label>
             <label className="text-sm text-slate-700">Email<input type="email" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.email} onChange={(e) => update('email', e.target.value)} required /></label>
             <label className="text-sm text-slate-700">Password<input type="password" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.password} onChange={(e) => update('password', e.target.value)} required /></label>
             <label className="text-sm text-slate-700">Branch<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.branch} onChange={(e) => update('branch', e.target.value)} required /></label>
@@ -71,12 +96,12 @@ export const RegisterStudentPage = () => {
               </select>
             </label>
             <label className="text-sm text-slate-700">CGPA<input type="number" step="0.1" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.cgpa} onChange={(e) => update('cgpa', Number(e.target.value))} required /></label>
-            <label className="text-sm text-slate-700">Phone<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.phone} onChange={(e) => update('phone', e.target.value)} required /></label>
+            <label className="text-sm text-slate-700">Phone<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.phone} maxLength={10} onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 10))} required /></label>
             <label className="text-sm text-slate-700 md:col-span-2">Skills<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.skills} onChange={(e) => update('skills', e.target.value)} required /></label>
             <label className="text-sm text-slate-700 md:col-span-2">Projects<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.projects} onChange={(e) => update('projects', e.target.value)} required /></label>
             <label className="text-sm text-slate-700 md:col-span-2">Resume Link<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.resumeLink} onChange={(e) => update('resumeLink', e.target.value)} required /></label>
             <label className="text-sm text-slate-700">University<input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.university} onChange={(e) => update('university', e.target.value)} required /></label>
-            <label className="text-sm text-slate-700">Graduation Year<input type="number" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.graduationYear} onChange={(e) => update('graduationYear', Number(e.target.value))} required /></label>
+            <label className="text-sm text-slate-700">Graduation Year<input type="number" min={2000} max={new Date().getFullYear() + 10} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value={form.graduationYear} onChange={(e) => update('graduationYear', Number(e.target.value))} required /></label>
           </div>
 
           <div className="mt-6 flex items-center justify-between">

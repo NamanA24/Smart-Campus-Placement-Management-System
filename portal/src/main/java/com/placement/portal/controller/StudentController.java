@@ -7,6 +7,7 @@ import com.placement.portal.repository.StudentRepository;
 import com.placement.portal.service.AuditService;
 import com.placement.portal.service.FitScoreService;
 import com.placement.portal.service.StudentSecurityService;
+import com.placement.portal.util.InputValidationUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -55,8 +56,8 @@ public class StudentController {
 
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
+        InputValidationUtil.validateAndNormalizeStudentForCreate(student, false, false);
         validateEmailForCreate(student.getEmail());
-        validateGender(student.getGender());
         ensurePassword(student);
         studentSecurityService.signProfile(student);
 
@@ -292,15 +293,14 @@ public class StudentController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
         }
 
-        List<Student> existing = studentRepository.findAllByEmail(email);
+        String normalizedEmail = email.trim();
+        if (!normalizedEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email format is invalid");
+        }
+
+        List<Student> existing = studentRepository.findAllByEmail(normalizedEmail);
         if (!existing.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
-        }
-    }
-
-    private void validateGender(String gender) {
-        if (gender == null || gender.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gender is required");
         }
     }
 

@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import type { ApplicationResponseDTO, Company, Job, StatusDistribution } from '../types/models';
 import {
   Briefcase, Users, ShieldAlert, CheckCircle2, Plus, BarChart3,
-  Building2, ListChecks, TrendingUp, Star, AlertCircle,
+  Building2, TrendingUp, Star, AlertCircle,
 } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, string> = {

@@ -36,17 +36,12 @@ public class FitScoreService {
         }
 
         int score = 0;
-
-        // 1. CGPA contribution (25 marks)
         score += scoreCgpa(student.getCgpa());
 
-        // 2. Skills + JD keyword alignment (45 marks)
         score += scoreJobAlignment(student, job);
 
-        // 3. Project relevance and evidence (20 marks)
         score += scoreProjectRelevance(student, job);
 
-        // 4. Resume availability (10 marks)
         if (hasText(student.getResumeLink())) score += 10;
 
         score = Math.max(0, Math.min(100, score));

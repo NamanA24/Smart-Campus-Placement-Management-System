@@ -9,8 +9,8 @@ import { applicationAPI, auditAPI, studentAPI } from '../services/api';
 import type { ApplicationDTO, AuditLog, StudentPlacementView } from '../types/models';
 import { useAuth } from '../context/AuthContext';
 import {
-  ClipboardList, GraduationCap, ScrollText, FileText, Clock,
-  ExternalLink, LayoutDashboard, Filter,
+  GraduationCap, ScrollText, FileText, Clock,
+  ExternalLink, Filter,
 } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,9 +21,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 export const PlacementPage = () => {
   const { user } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') ?? 'overview';
-  const setActiveTab = (id: string) => setSearchParams(id ? { tab: id } : {});
 
   const [applications, setApplications] = useState<ApplicationDTO[]>([]);
   const [placementStudents, setPlacementStudents] = useState<StudentPlacementView[]>([]);

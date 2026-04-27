@@ -7,6 +7,7 @@ import { SectionCard } from '../components/SectionCard';
 import { StatusPill } from '../components/StatusPill';
 import { auditAPI, companyAPI, jobAPI, studentAPI, tpaAPI } from '../services/api';
 import type { Company, Job, Student } from '../types/models';
+import { validateCompanyFields, validateStudentFields } from '../utils/validation';
 import {
   GraduationCap, Building2, Briefcase, ShieldAlert, ShieldCheck,
   Plus, Play, Terminal, ExternalLink,
@@ -18,32 +19,6 @@ const INTEGRITY_COLORS: Record<string, string> = {
   TAMPERED: '#F43F5E',
   UNSIGNED: '#F59E0B',
 };
-
-// ── Validation ──────────────────────────────────────────────────────────────
-function validateStudentForm(f: typeof EMPTY_STUDENT): string[] {
-  const errs: string[] = [];
-  if (!f.name.trim())       errs.push('Full name is required');
-  if (!f.email.trim())      errs.push('Email is required');
-  else if (!/\S+@\S+\.\S+/.test(f.email)) errs.push('Enter a valid email address');
-  if (!f.branch.trim())     errs.push('Branch is required');
-  if (f.cgpa === '')        errs.push('CGPA is required');
-  else if (Number(f.cgpa) < 0 || Number(f.cgpa) > 10) errs.push('CGPA must be between 0 and 10');
-  if (!f.phone.trim())      errs.push('Phone number is required');
-  else if (!/^\d+$/.test(f.phone)) errs.push('Phone must contain only digits');
-  else if (f.phone.length > 10) errs.push('Phone number cannot exceed 10 digits');
-  if (!f.university.trim()) errs.push('University is required');
-  if (!f.skills.trim())     errs.push('Skills are required');
-  if (!f.gender)            errs.push('Gender is required');
-  return errs;
-}
-
-function validateCompanyForm(name: string, role: string, pkg: string | number): string[] {
-  const errs: string[] = [];
-  if (!name.trim()) errs.push('Company name is required');
-  if (!role.trim()) errs.push('Role / department is required');
-  if (pkg === '' || Number(pkg) <= 0) errs.push('Package offered must be greater than 0');
-  return errs;
-}
 
 function validateJobForm(companyId: number, title: string, description: string): string[] {
   const errs: string[] = [];
@@ -131,7 +106,11 @@ export const AdminPage = () => {
 
   // ── CRUD helpers ───────────────────────────────────────────────────────────
   const createStudent = async () => {
-    const errs = validateStudentForm(studentForm);
+    const errs = validateStudentFields(studentForm, {
+      requirePassword: false,
+      requireProjects: false,
+      requireResumeLink: false,
+    });
     if (errs.length > 0) { setStudentErrs(errs); return; }
     setStudentErrs([]);
     try {
@@ -148,7 +127,7 @@ export const AdminPage = () => {
   };
 
   const createCompany = async () => {
-    const errs = validateCompanyForm(String(companyForm.name), String(companyForm.role), companyForm.packageOffered);
+    const errs = validateCompanyFields(companyForm);
     if (errs.length > 0) { setCompanyErrs(errs); return; }
     setCompanyErrs([]);
     try {
@@ -339,7 +318,12 @@ export const AdminPage = () => {
                       <label className="form-label">{field.label}</label>
                       <input className="form-input" type={field.type} placeholder={field.placeholder}
                         value={String((studentForm as any)[field.key])}
-                        onChange={(e) => setStudentForm((prev) => ({ ...prev, [field.key]: e.target.value }))} />
+                        onChange={(e) => {
+                          const nextValue = field.key === 'name'
+                            ? e.target.value.replace(/[^A-Za-z\s]/g, '')
+                            : e.target.value;
+                          setStudentForm((prev) => ({ ...prev, [field.key]: nextValue }));
+                        }} />
                     </div>
                   ))}
                   <div>
@@ -430,7 +414,7 @@ export const AdminPage = () => {
                     <div>
                       <label className="form-label">Company Name *</label>
                       <input className="form-input" placeholder="Acme Corp"
-                        value={companyForm.name} onChange={(e) => setCompanyForm((prev) => ({ ...prev, name: e.target.value }))} />
+                        value={companyForm.name} onChange={(e) => setCompanyForm((prev) => ({ ...prev, name: e.target.value.replace(/[^A-Za-z\s]/g, '') }))} />
                     </div>
                     <div>
                       <label className="form-label">Role / Department *</label>
@@ -439,7 +423,7 @@ export const AdminPage = () => {
                     </div>
                     <div>
                       <label className="form-label">Package Offered (LPA) *</label>
-                      <input className="form-input" type="number" placeholder="12" min="0"
+                      <input className="form-input" type="number" placeholder="12" min="0.1" step="0.1"
                         value={companyForm.packageOffered}
                         onChange={(e) => setCompanyForm((prev) => ({ ...prev, packageOffered: e.target.value === '' ? '' : e.target.value }))} />
                     </div>

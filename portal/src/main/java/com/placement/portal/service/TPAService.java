@@ -72,3 +72,54 @@ public class TPAService {
         return results;
     }
 }
+
+/*
+
+mysql -u root -p
+```
+
+SHOW DATABASES;
+```
+
+USE placement_portal;
+```
+SELECT * from student;
+
+SELECT id, email, cgpa FROM student WHERE id = 22;
+```
+
+8. Tamper profile (this simulates attacker editing DB directly):
+```sql
+UPDATE student
+SET cgpa = 10.0
+WHERE id = 22;
+```
+
+9. Commit change:
+```sql
+COMMIT;
+```
+
+10. Verify DB changed:
+```sql
+SELECT id, email, cgpa FROM student WHERE id = 22;
+```
+
+11. Exit MySQL:
+```sql
+exit;
+```
+
+Now return to test.http and run these 3 requests in order:
+
+1. `GET /students/me` with `@studentToken`
+   Expected: `integrityStatus = TAMPERED`
+
+2. `POST /students/me/resign`
+   Expected: 200
+
+3. `GET /students/me` again
+   Expected: `integrityStatus = CLEAN`
+
+If you want, after you run these, paste the 2 `integrityStatus` values and I’ll confirm you’re demo-perfect.
+ */
